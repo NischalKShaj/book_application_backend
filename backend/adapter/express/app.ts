@@ -3,7 +3,9 @@
 // importing the required modules
 import dotenv from "dotenv";
 import express, { Request, Response, NextFunction } from "express";
+import cors from "cors";
 import userRouter from "../../presentation/routes/userRoutes";
+import { corsOptions } from "../config/corsOption";
 dotenv.config();
 
 // setting the app
@@ -12,6 +14,9 @@ const app = express();
 // setting the parsers
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// enabling the cors policy
+app.use(cors(corsOptions));
 
 // setting the routes
 app.use("/", userRouter);

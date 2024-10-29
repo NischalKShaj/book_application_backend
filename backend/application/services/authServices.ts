@@ -17,4 +17,9 @@ export class AuthService {
   ): Promise<User> {
     return this.userUseCase.execute(username, email, password, phoneNumber);
   }
+
+  // for log in the user with credentials
+  async login(email: string, password: string): Promise<User> {
+    return this.userUseCase.findByEmail(email, password);
+  }
 }
