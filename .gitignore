@@ -1,0 +1,5 @@
+.env
+/node_modules
+/dist
+.vscode
+book-application-441306-da2b3a293767.json
