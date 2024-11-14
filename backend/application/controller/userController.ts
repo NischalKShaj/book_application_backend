@@ -5,18 +5,22 @@ import { Request, Response } from "express";
 import { AuthService } from "../services/authServices";
 import { GenerateToken } from "../services/generateToken";
 import { ProductUseCase } from "../../core/useCases/productUseCase";
+import { CartUseCase } from "../../core/useCases/cartUseCase";
 
 // user controller
 export class UserController {
   constructor(
     private authService: AuthService,
     private generateToken: GenerateToken,
-    private productUseCase: ProductUseCase
+    private productUseCase: ProductUseCase,
+    private cartUseCase: CartUseCase
   ) {
     this.postSignup = this.postSignup.bind(this);
     this.postLogin = this.postLogin.bind(this);
     this.getProducts = this.getProducts.bind(this);
     this.getProduct = this.getProduct.bind(this);
+    this.getCart = this.getCart.bind(this);
+    this.addItem = this.addItem.bind(this);
   }
   // controller for signup
   async postSignup(req: Request, res: Response): Promise<void> {
@@ -95,6 +99,36 @@ export class UserController {
       const product = await this.productUseCase.getProduct(id);
       res.status(200).json({ product: product });
       return;
+    } catch (error) {
+      console.error("error", error);
+      res.status(500).json("internal server error");
+      return;
+    }
+  }
+
+  // controller for getting the cart data
+  async getCart(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const cart = await this.cartUseCase.getCart(id);
+      res.status(200).json({ cart: cart });
+    } catch (error) {
+      console.error("error", error);
+      res.status(500).json("internal server error");
+      return;
+    }
+  }
+
+  // controller for adding new item to the cart
+  async addItem(req: Request, res: Response): Promise<void> {
+    try {
+      const { userId, productId, quantity } = req.body;
+      const newItem = await this.cartUseCase.addItem({
+        userId,
+        productId,
+        quantity,
+      });
+      res.status(201).json({ cart: newItem });
     } catch (error) {
       console.error("error", error);
       res.status(500).json("internal server error");

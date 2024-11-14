@@ -10,6 +10,8 @@ import { PasswordService } from "../../infrastructure/services/passwordServices"
 import { GenerateToken } from "../../application/services/generateToken";
 import { ProductUseCase } from "../../core/useCases/productUseCase";
 import { ProductRepository } from "../../infrastructure/repository/productRepository";
+import { CartRepository } from "../../infrastructure/repository/cartRepository";
+import { CartUseCase } from "../../core/useCases/cartUseCase";
 
 // creating the router instance
 const router = express.Router();
@@ -20,12 +22,15 @@ const passwordService = new PasswordService();
 const generateToken = new GenerateToken();
 const productRepository = new ProductRepository();
 const productUseCase = new ProductUseCase(productRepository);
+const cartRepository = new CartRepository();
+const cartUseCase = new CartUseCase(cartRepository);
 const userUseCase = new UserUseCase(userRepository, passwordService);
 const authService = new AuthService(userUseCase);
 const userController = new UserController(
   authService,
   generateToken,
-  productUseCase
+  productUseCase,
+  cartUseCase
 );
 
 // route for home page
@@ -44,6 +49,9 @@ router.get("/products", userController.getProducts);
 
 // router for getting a specific product
 router.get("/product/:id", userController.getProduct);
+
+// router for getting the cart
+router.get("/cart/:id", userController.getCart);
 
 // exporting the router
 export default router;
