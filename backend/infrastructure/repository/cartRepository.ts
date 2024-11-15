@@ -53,30 +53,9 @@ export class CartRepository implements ICartRepository {
     quantity: number;
   }): Promise<Cart> {
     try {
-      const user = await UserModel.findById({ _id: cartData.userId });
-      if (!user) {
-        throw new Error("user not found");
-      }
+      await CartModel.create(cartData);
 
-      const product = await ProductModel.findById({ _id: cartData.productId });
-      if (!product) {
-        throw new Error("product not found");
-      }
-
-      // check if the product exists
-      const existingProduct = await CartModel.findOne({
-        userId: cartData.userId,
-        productId: cartData.productId,
-      });
-
-      if (existingProduct) {
-        existingProduct.quantity += cartData.quantity;
-        product.stock -= existingProduct.quantity;
-        await existingProduct.save();
-      } else {
-        product.stock -= cartData.quantity;
-        await CartModel.create(cartData);
-      }
+      // adding new data
       const newCartData = await this.getSingleCartItem(
         cartData.userId,
         cartData.productId
@@ -123,5 +102,49 @@ export class CartRepository implements ICartRepository {
       amount: cartItem.productId.amount * cartItem.quantity,
       quantity: cartItem.quantity,
     };
+  }
+
+  // stock validating for the cart
+  async getItem(productId: string): Promise<Cart | null> {
+    try {
+      const item = await CartModel.findOne({ productId: productId }).populate<{
+        productId: {
+          _id: string;
+          bookName: string;
+          amount: number;
+          images: string[];
+        };
+      }>({
+        path: "productId",
+        select: "bookName amount images",
+      });
+      if (!item) {
+        throw new Error();
+      }
+      return {
+        _id: item._id.toString(),
+        userId: item.userId.toString(),
+        productId: item.productId.toString(),
+        productName: item.productId.bookName,
+        images: item.productId.images,
+        amount: item.productId.amount * item.quantity,
+        quantity: item.quantity,
+      };
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for updating the quantity
+  async updateItem(cartData: Cart): Promise<Cart | null> {
+    try {
+      return await CartModel.findByIdAndUpdate(
+        { _id: cartData._id },
+        { $set: { quantity: cartData.quantity } },
+        { new: true }
+      );
+    } catch (error) {
+      throw new Error(error as string);
+    }
   }
 }

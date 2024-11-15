@@ -47,9 +47,6 @@ export class ProductRepository implements IProductRepository {
         images: productData.images,
       });
 
-      console.log("url", productData.images);
-
-      console.log("new Product", newProduct);
       const productObject = newProduct.toObject();
 
       return {
@@ -66,7 +63,26 @@ export class ProductRepository implements IProductRepository {
     }
   }
 
-  // for getting a specific product
+  // for checking the existence of a product
+  async checkProduct(bookName: string): Promise<Product | null> {
+    try {
+      const product = await ProductModel.findOne({ bookName: bookName });
+      return product
+        ? new Product(
+            product._id.toString(),
+            product.bookName,
+            product.bookDescription,
+            product.stock,
+            product.amount,
+            product.images
+          )
+        : null;
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for getting a specific product based on id
   async getProduct(id: string): Promise<Product | null> {
     try {
       const product = await ProductModel.findById({ _id: id });

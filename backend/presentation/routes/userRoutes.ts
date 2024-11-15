@@ -23,7 +23,11 @@ const generateToken = new GenerateToken();
 const productRepository = new ProductRepository();
 const productUseCase = new ProductUseCase(productRepository);
 const cartRepository = new CartRepository();
-const cartUseCase = new CartUseCase(cartRepository);
+const cartUseCase = new CartUseCase(
+  cartRepository,
+  productRepository,
+  userRepository
+);
 const userUseCase = new UserUseCase(userRepository, passwordService);
 const authService = new AuthService(userUseCase);
 const userController = new UserController(

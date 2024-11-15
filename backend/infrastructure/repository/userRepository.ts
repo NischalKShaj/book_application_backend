@@ -47,4 +47,22 @@ export class UserRepository implements IUserRepository {
       throw new Error("error while finding the user");
     }
   }
+
+  // for find the user with id
+  async findByUserId(id: string): Promise<User | null> {
+    try {
+      const user = await UserModel.findById({ _id: id });
+      return user
+        ? new User(
+            user._id.toString(),
+            user.username,
+            user.email,
+            user.password,
+            user.phoneNumber
+          )
+        : null;
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
 }

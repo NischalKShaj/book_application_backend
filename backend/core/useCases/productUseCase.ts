@@ -18,6 +18,7 @@ export class ProductUseCase {
       throw new Error("something went wrong");
     }
   }
+
   // function for adding new product
   async addProduct(productData: {
     bookName: string;
@@ -27,7 +28,24 @@ export class ProductUseCase {
     images: string[];
   }): Promise<Product> {
     try {
-      const newProduct = await this.productRepository.addProduct(productData);
+      // for checking if the product already exist in the db
+      const existingProduct = await this.productRepository.checkProduct(
+        productData.bookName
+      );
+      if (existingProduct) {
+        throw new Error("product already exist");
+      }
+
+      const newProduct = new Product(
+        Date.now().toString(),
+        productData.bookName,
+        productData.bookDescription,
+        productData.amount,
+        productData.stock,
+        productData.images
+      );
+
+      await this.productRepository.addProduct(newProduct);
       return newProduct;
     } catch (error) {
       console.error("error", error);
