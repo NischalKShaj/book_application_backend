@@ -60,8 +60,23 @@ export class CartUseCase {
         existingItem.quantity = requestedQuantity;
         return await this.cartRepository.updateItem(existingItem);
       } else {
-        return this.cartRepository.addItem(cartData);
+        return await this.cartRepository.addItem(cartData);
       }
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for removing the item from the cart
+  async removeItem(cartId: string, userId: string): Promise<string> {
+    try {
+      const user = await this.userRepository.findByUserId(userId);
+      if (!user) {
+        throw new Error("user not found");
+      }
+
+      const cart = await this.cartRepository.removeItem(cartId);
+      return cart;
     } catch (error) {
       throw new Error(error as string);
     }

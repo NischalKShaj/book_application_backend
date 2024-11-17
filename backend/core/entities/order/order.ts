@@ -8,14 +8,21 @@ export class Order {
     public cartId: string,
     public products: Array<{
       productId: string;
+      bookName: string;
       images: string[];
-      quantity: number;
       amount: number;
+      quantity: number;
     }>,
-    public quantity: number,
     public totalAmount: number,
     public addressId: string,
-    public status: "pending" | "shipped" | "out for delivery" | "delivered",
-    public paymentMethod: "COD" | "Online Payment" | "Wallet"
+    public status:
+      | "pending"
+      | "shipped"
+      | "out for delivery"
+      | "delivered"
+      | "canceled",
+    public paymentMethod: string,
+    public createdAt: Date,
+    public updatedAt: Date
   ) {}
 }

@@ -14,4 +14,6 @@ export interface ICartRepository {
   getSingleCartItem(userId: string, productId: string): Promise<Cart | null>;
   getItem(productId: string): Promise<Cart | null>;
   updateItem(cartData: Cart): Promise<Cart | null>;
+  removeItem(cartId: string): Promise<string>;
+  clearCart(cartId: string[], userId: string): Promise<void>;
 }

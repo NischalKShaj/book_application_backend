@@ -35,7 +35,7 @@ export class CartRepository implements ICartRepository {
         _id: cart._id.toString(),
         userId: cart.userId.toString(),
         productId: cart.productId._id.toString(),
-        productName: cart.productId.bookName,
+        bookName: cart.productId.bookName,
         images: cart.productId.images,
         amount: cart.productId.amount * cart.quantity,
         quantity: cart.quantity,
@@ -97,7 +97,7 @@ export class CartRepository implements ICartRepository {
       _id: cartItem._id.toString(),
       userId: cartItem.userId.toString(),
       productId: cartItem.productId._id.toString(),
-      productName: cartItem.productId.bookName,
+      bookName: cartItem.productId.bookName,
       images: cartItem.productId.images,
       amount: cartItem.productId.amount * cartItem.quantity,
       quantity: cartItem.quantity,
@@ -125,7 +125,7 @@ export class CartRepository implements ICartRepository {
         _id: item._id.toString(),
         userId: item.userId.toString(),
         productId: item.productId.toString(),
-        productName: item.productId.bookName,
+        bookName: item.productId.bookName,
         images: item.productId.images,
         amount: item.productId.amount * item.quantity,
         quantity: item.quantity,
@@ -145,6 +145,28 @@ export class CartRepository implements ICartRepository {
       );
     } catch (error) {
       throw new Error(error as string);
+    }
+  }
+
+  // for removing the item from the cart
+  async removeItem(cartId: string): Promise<string> {
+    try {
+      const cart = await CartModel.findByIdAndDelete(cartId);
+      if (!cart) {
+        throw new Error("cart not found");
+      }
+      return "item removed from the cart";
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for clearing the Cart
+  async clearCart(cartId: string[], userId: string): Promise<void> {
+    try {
+      await CartModel.deleteMany({ _id: { $in: cartId }, userId });
+    } catch (error) {
+      throw new Error("failed to clear cart");
     }
   }
 }

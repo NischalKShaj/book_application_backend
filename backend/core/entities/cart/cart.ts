@@ -5,7 +5,7 @@ export class Cart {
   constructor(
     public _id: string,
     public productId: string,
-    public productName: string,
+    public bookName: string,
     public amount: number,
     public userId: string,
     public images: string[],
