@@ -7,5 +7,5 @@ import { Order } from "../entities/order/order";
 export interface IOrderRepository {
   createOrder(order: Order): Promise<Order>;
   getUserOrder(userId: string): Promise<Order[] | null>;
-  //   cancelOrder(status: string, orderId: string): Promise<Order | null>;
+  cancelOrder(orderId: string): Promise<Order | null>;
 }

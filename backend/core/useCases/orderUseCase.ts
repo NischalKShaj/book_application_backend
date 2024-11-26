@@ -72,6 +72,23 @@ export class OrderUseCase {
         throw new Error("order was not saved");
       }
 
+      // for updating the stock after ordering
+      for (let product of products) {
+        let existingProduct = await this.productRepository.getProduct(
+          product.productId
+        );
+        if (!existingProduct) {
+          throw new Error("product not found");
+        }
+        const newStock = existingProduct.stock - product.quantity;
+        if (newStock < 0) {
+          throw new Error("insufficient stock for the product");
+        }
+
+        await this.productRepository.updateStock(product.productId, newStock);
+      }
+
+      // clearing the cart
       const cartIds = cart.map((c) => c._id);
       await this.cartRepository.clearCart(cartIds, userId);
 
@@ -92,6 +109,23 @@ export class OrderUseCase {
       const orders = await this.orderRepository.getUserOrder(userId);
       if (!orders) {
         throw new Error("no orders were found");
+      }
+      return orders;
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for cancelling the order
+  async cancelOrder(userId: string, orderId: string): Promise<Order | null> {
+    try {
+      const user = await this.userRepository.findByUserId(userId);
+      if (!user) {
+        throw new Error("user not found");
+      }
+      const orders = await this.orderRepository.cancelOrder(orderId);
+      if (!orders) {
+        throw new Error("no order were found");
       }
       return orders;
     } catch (error) {

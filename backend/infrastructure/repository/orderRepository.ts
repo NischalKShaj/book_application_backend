@@ -126,17 +126,45 @@ export class OrderRepository implements IOrderRepository {
     }
   }
 
-  //   // for canceling the order
-  //   async cancelOrder(status: string, orderId: string): Promise<Order | null> {
-  //     try {
-  //       const order = await OrderModel.findByIdAndUpdate(
-  //         { _id: orderId },
-  //         { $set: { status: "canceled" } },
-  //         { new: true }
-  //       ).lean();
-  //       return order;
-  //     } catch (error) {
-  //       throw new Error(error as string);
-  //     }
-  //   }
+  // for canceling the order
+  async cancelOrder(orderId: string): Promise<Order | null> {
+    try {
+      const order = await OrderModel.findById({ _id: orderId });
+
+      const resetTimeToMidnight = (date: Date): Date => {
+        const newDate = new Date(date);
+        newDate.setHours(0, 0, 0, 0);
+        return newDate;
+      };
+
+      if (order?.status == "pending") {
+        order.status = "canceled";
+
+        await order.save();
+
+        const formattedProducts = order.products.map((product) => ({
+          productId: product.productId.toString(),
+          bookName: product.bookName || "",
+          images: product.images,
+          amount: product.amount,
+          quantity: product.quantity,
+        }));
+
+        return new Order(
+          order._id.toString(),
+          order.userId.toString(),
+          order.cartId.toString(),
+          formattedProducts,
+          order.totalAmount,
+          order.addressId.toString(),
+          order.status,
+          order.paymentMethod,
+          order.createdAt,
+          resetTimeToMidnight(new Date())
+        );
+      } else return null;
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
 }

@@ -9,4 +9,5 @@ export interface IProductRepository {
   addProduct(product: Product): Promise<Product>;
   checkProduct(bookName: string): Promise<Product | null>;
   getProduct(id: string): Promise<Product | null>;
+  updateStock(id: string, stock: number): Promise<Product>;
 }

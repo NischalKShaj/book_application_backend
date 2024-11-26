@@ -102,4 +102,26 @@ export class ProductRepository implements IProductRepository {
       throw new Error(error as string);
     }
   }
+
+  // for updating the stock of the product after ordering
+  async updateStock(id: string, stock: number): Promise<Product> {
+    try {
+      const product = await ProductModel.findById({ _id: id });
+      if (!product) {
+        throw new Error("no product found");
+      }
+      product.stock = stock;
+      await product.save();
+      return {
+        _id: product._id.toString(),
+        bookName: product.bookName,
+        bookDescription: product.bookDescription,
+        amount: product.amount,
+        stock: product.stock,
+        images: product.images,
+      };
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
 }

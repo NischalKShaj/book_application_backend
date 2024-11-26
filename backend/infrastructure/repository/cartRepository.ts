@@ -169,4 +169,13 @@ export class CartRepository implements ICartRepository {
       throw new Error("failed to clear cart");
     }
   }
+
+  // for getting the single cart
+  async getSingleCart(cartId: string): Promise<Cart | null> {
+    try {
+      return await CartModel.findById(cartId);
+    } catch (error) {
+      throw new Error();
+    }
+  }
 }
