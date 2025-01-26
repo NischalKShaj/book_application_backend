@@ -23,21 +23,25 @@ export class CartRepository implements ICartRepository {
         productId: {
           _id: string;
           bookName: string;
+          bookDescription: string;
           amount: number;
           images: string[];
         };
       }>({
         path: "productId",
-        select: "bookName amount images",
+        select: "bookName amount images bookDescription",
       });
+
+      console.log("cart data for the user", cartData);
 
       return cartData.map((cart) => ({
         _id: cart._id.toString(),
         userId: cart.userId.toString(),
         productId: cart.productId._id.toString(),
         bookName: cart.productId.bookName,
+        bookDescription: cart.productId.bookDescription,
         images: cart.productId.images,
-        amount: cart.productId.amount * cart.quantity,
+        amount: cart.productId.amount,
         quantity: cart.quantity,
       }));
     } catch (error) {
@@ -53,7 +57,8 @@ export class CartRepository implements ICartRepository {
     quantity: number;
   }): Promise<Cart> {
     try {
-      await CartModel.create(cartData);
+      const cart = await CartModel.create(cartData);
+      console.log("cart", cart);
 
       // adding new data
       const newCartData = await this.getSingleCartItem(
@@ -61,7 +66,10 @@ export class CartRepository implements ICartRepository {
         cartData.productId
       );
 
+      console.log("newCart", newCartData);
+
       if (!newCartData) {
+        console.error("error", newCartData);
         throw new Error("failed to retrieve the updated data");
       }
 
@@ -82,12 +90,15 @@ export class CartRepository implements ICartRepository {
         _id: string;
         bookName: string;
         amount: number;
+        bookDescription: string;
         images: string[];
       };
     }>({
       path: "productId",
       select: "bookName amount images",
     });
+
+    console.log("cart Item", cartItem);
 
     if (!cartItem) {
       return null;
@@ -98,8 +109,9 @@ export class CartRepository implements ICartRepository {
       userId: cartItem.userId.toString(),
       productId: cartItem.productId._id.toString(),
       bookName: cartItem.productId.bookName,
+      bookDescription: cartItem.productId.bookDescription,
       images: cartItem.productId.images,
-      amount: cartItem.productId.amount * cartItem.quantity,
+      amount: cartItem.productId.amount,
       quantity: cartItem.quantity,
     };
   }
@@ -112,22 +124,27 @@ export class CartRepository implements ICartRepository {
           _id: string;
           bookName: string;
           amount: number;
+          bookDescription: string;
           images: string[];
         };
       }>({
         path: "productId",
         select: "bookName amount images",
       });
+
+      console.log("item for stock validation", item);
+
       if (!item) {
-        throw new Error();
+        return null;
       }
       return {
         _id: item._id.toString(),
         userId: item.userId.toString(),
         productId: item.productId.toString(),
         bookName: item.productId.bookName,
+        bookDescription: item.productId.bookDescription,
         images: item.productId.images,
-        amount: item.productId.amount * item.quantity,
+        amount: item.productId.amount,
         quantity: item.quantity,
       };
     } catch (error) {

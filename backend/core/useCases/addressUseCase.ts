@@ -15,21 +15,25 @@ export class AddressUseCase {
   // for creating new address
   async createAddress(
     userId: string,
+    addresseeName: string,
+    addresseePhone: string,
     fullAddress: string,
     locality: string,
     pincode: number,
     state: string,
     city: string
-  ): Promise<Address> {
+  ): Promise<{ savedAddress?: Address | null; success: boolean }> {
     try {
       const user = await this.userRepository.findByUserId(userId);
-      if (!userId) {
+      if (!user) {
         throw new Error("user not found");
       }
 
       const address = new Address(
         Date.now().toString(),
         userId,
+        addresseeName,
+        addresseePhone,
         fullAddress,
         locality,
         pincode,
@@ -40,7 +44,13 @@ export class AddressUseCase {
         address as Address
       );
 
-      return savedAddress;
+      console.log("saved address", savedAddress);
+
+      if (!savedAddress) {
+        return { success: false, savedAddress };
+      }
+
+      return { success: true, savedAddress };
     } catch (error) {
       throw new Error(error as string);
     }
@@ -68,16 +78,21 @@ export class AddressUseCase {
   }
 
   // for finding all the address
-  async findAddress(userId: string): Promise<Address[] | null> {
+  async findAddress(
+    userId: string
+  ): Promise<{ addresses: Address[] | null; success: boolean }> {
     try {
       const user = await this.userRepository.findByUserId(userId);
       if (!user) {
         throw new Error("user not found");
       }
       const addresses = await this.addressRepository.findAddress(userId);
-      return addresses;
+      if (!addresses) {
+        return { success: false, addresses: null };
+      }
+      return { addresses: addresses, success: true };
     } catch (error) {
-      throw new Error(error as string);
+      return { success: false, addresses: null };
     }
   }
 }

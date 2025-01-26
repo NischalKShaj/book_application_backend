@@ -30,19 +30,21 @@ export class CartUseCase {
     userId: string;
     productId: string;
     quantity: number;
-  }): Promise<Cart | null> {
+  }): Promise<{ success: boolean; cartItem?: Cart | null; message?: string }> {
     try {
       // to check the product existence
       const product = await this.productRepository.getProduct(
         cartData.productId
       );
       if (!product) {
-        throw new Error("no product found");
+        console.log("clg here !product");
+        return { success: false, message: "No product found" };
       }
 
       const user = await this.userRepository.findByUserId(cartData.userId);
       if (!user) {
-        throw new Error("no user found");
+        console.log("clg here !user");
+        return { success: false, message: "No user found" };
       }
 
       const existingItem = await this.cartRepository.getItem(
@@ -53,17 +55,22 @@ export class CartUseCase {
         : cartData.quantity;
 
       if (requestedQuantity > product.stock) {
-        throw new Error("invalid stock entered");
+        console.log("stock validation error");
+        return { success: false, message: "Invalid stock entered" };
       }
-
+      let cartItem;
       if (existingItem) {
+        console.log("inside here", existingItem);
         existingItem.quantity = requestedQuantity;
-        return await this.cartRepository.updateItem(existingItem);
+        cartItem = await this.cartRepository.updateItem(existingItem);
       } else {
-        return await this.cartRepository.addItem(cartData);
+        cartItem = await this.cartRepository.addItem(cartData);
+        console.log("cart item after saving", cartItem);
       }
-    } catch (error) {
-      throw new Error(error as string);
+      return { success: true, cartItem };
+    } catch (error: any) {
+      console.error("error", error);
+      return { success: false, message: error.message || "An error occurred" };
     }
   }
 

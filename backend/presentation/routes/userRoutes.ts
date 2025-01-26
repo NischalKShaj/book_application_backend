@@ -12,6 +12,8 @@ import { ProductUseCase } from "../../core/useCases/productUseCase";
 import { ProductRepository } from "../../infrastructure/repository/productRepository";
 import { CartRepository } from "../../infrastructure/repository/cartRepository";
 import { CartUseCase } from "../../core/useCases/cartUseCase";
+import { AddressRepository } from "../../infrastructure/repository/addressRepository";
+import { AddressUseCase } from "../../core/useCases/addressUseCase";
 
 // creating the router instance
 const router = express.Router();
@@ -23,18 +25,21 @@ const generateToken = new GenerateToken();
 const productRepository = new ProductRepository();
 const productUseCase = new ProductUseCase(productRepository);
 const cartRepository = new CartRepository();
+const addressRepository = new AddressRepository();
 const cartUseCase = new CartUseCase(
   cartRepository,
   productRepository,
   userRepository
 );
 const userUseCase = new UserUseCase(userRepository, passwordService);
+const addressUseCase = new AddressUseCase(addressRepository, userRepository);
 const authService = new AuthService(userUseCase);
 const userController = new UserController(
   authService,
   generateToken,
   productUseCase,
-  cartUseCase
+  cartUseCase,
+  addressUseCase
 );
 
 // route for home page
@@ -56,6 +61,15 @@ router.get("/product/:id", userController.getProduct);
 
 // router for getting the cart
 router.get("/cart/:id", userController.getCart);
+
+// router for adding the product to the cart
+router.post("/cart/add-item", userController.addItem);
+
+// router for moving to the checkout page
+router.post("/add-address", userController.createAddress);
+
+// router for getting the address of the user
+router.get("/address/:id", userController.getAddress);
 
 // exporting the router
 export default router;

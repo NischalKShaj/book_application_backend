@@ -10,6 +10,14 @@ const addressSchema = new Schema({
     ref: "user",
     required: true,
   },
+  addresseeName: {
+    type: String,
+    required: true,
+  },
+  addresseePhone: {
+    type: String,
+    required: true,
+  },
   fullAddress: {
     type: String,
     required: true,

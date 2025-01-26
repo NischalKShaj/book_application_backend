@@ -6,6 +6,7 @@ import { AuthService } from "../services/authServices";
 import { GenerateToken } from "../services/generateToken";
 import { ProductUseCase } from "../../core/useCases/productUseCase";
 import { CartUseCase } from "../../core/useCases/cartUseCase";
+import { AddressUseCase } from "../../core/useCases/addressUseCase";
 
 // user controller
 export class UserController {
@@ -13,7 +14,8 @@ export class UserController {
     private authService: AuthService,
     private generateToken: GenerateToken,
     private productUseCase: ProductUseCase,
-    private cartUseCase: CartUseCase
+    private cartUseCase: CartUseCase,
+    private addressUseCase: AddressUseCase
   ) {
     this.postSignup = this.postSignup.bind(this);
     this.postLogin = this.postLogin.bind(this);
@@ -21,6 +23,8 @@ export class UserController {
     this.getProduct = this.getProduct.bind(this);
     this.getCart = this.getCart.bind(this);
     this.addItem = this.addItem.bind(this);
+    this.createAddress = this.createAddress.bind(this);
+    this.getAddress = this.getAddress.bind(this);
   }
   // controller for signup
   async postSignup(req: Request, res: Response): Promise<void> {
@@ -110,6 +114,7 @@ export class UserController {
   async getCart(req: Request, res: Response): Promise<void> {
     try {
       const { id } = req.params;
+      console.log("user id", id);
       const cart = await this.cartUseCase.getCart(id);
       res.status(200).json({ cart: cart });
     } catch (error) {
@@ -120,7 +125,7 @@ export class UserController {
   }
 
   // controller for adding new item to the cart
-  async addItem(req: Request, res: Response): Promise<void> {
+  async addItem(req: Request, res: Response): Promise<any> {
     try {
       const { userId, productId, quantity } = req.body;
       const newItem = await this.cartUseCase.addItem({
@@ -128,11 +133,64 @@ export class UserController {
         productId,
         quantity,
       });
+      if (!newItem.success) {
+        return res.status(400).json({ cart: newItem });
+      }
       res.status(201).json({ cart: newItem });
     } catch (error) {
       console.error("error", error);
       res.status(500).json("internal server error");
       return;
+    }
+  }
+
+  // controller for adding new address
+  async createAddress(req: Request, res: Response) {
+    try {
+      const {
+        userId,
+        addresseeName,
+        addresseePhone,
+        fullAddress,
+        locality,
+        pincode,
+        state,
+        city,
+      } = req.body;
+      const newAddress = await this.addressUseCase.createAddress(
+        userId,
+        addresseeName,
+        addresseePhone,
+        fullAddress,
+        locality,
+        pincode,
+        state,
+        city
+      );
+      console.log("new address", newAddress);
+      if (!newAddress.success) {
+        res.status(400).json({ address: newAddress });
+      }
+      res.status(201).json({ address: newAddress });
+    } catch (error) {
+      console.error("error", error);
+      res.status(500).json("internal server error");
+      return;
+    }
+  }
+
+  // controller for showing all the address of the users
+  async getAddress(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const savedAddress = await this.addressUseCase.findAddress(id);
+      if (!savedAddress.success) {
+        res.status(400).json({ savedAddress: savedAddress });
+      }
+      res.status(200).json(savedAddress);
+    } catch (error) {
+      console.error("error", error);
+      res.status(500).json("internal server error");
     }
   }
 }

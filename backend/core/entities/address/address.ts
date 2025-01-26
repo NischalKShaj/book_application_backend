@@ -5,6 +5,8 @@ export class Address {
   constructor(
     public _id: string,
     public userId: string,
+    public addresseeName: string,
+    public addresseePhone: string,
     public fullAddress: string,
     public locality: string,
     public pincode: number,

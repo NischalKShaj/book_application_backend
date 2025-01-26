@@ -17,6 +17,8 @@ export class AddressRepository implements IAddressRepository {
       return addresses.map((address) => ({
         _id: address._id.toString(),
         userId: address.userId.toString(),
+        addresseeName: address.addresseeName,
+        addresseePhone: address.addresseePhone,
         fullAddress: address.fullAddress,
         locality: address.locality,
         pincode: address.pincode,
@@ -33,6 +35,8 @@ export class AddressRepository implements IAddressRepository {
     try {
       const addressData = {
         userId: address.userId,
+        addresseeName: address.addresseeName,
+        addresseePhone: address.addresseePhone,
         fullAddress: address.fullAddress,
         locality: address.locality,
         pincode: address.pincode,
@@ -42,9 +46,13 @@ export class AddressRepository implements IAddressRepository {
 
       const newAddress = await AddressModel.create(addressData);
 
+      console.log("new Address", newAddress);
+
       return new Address(
         newAddress._id.toString(),
         newAddress.userId.toString(),
+        newAddress.addresseeName,
+        newAddress.addresseePhone,
         newAddress.fullAddress,
         newAddress.locality,
         newAddress.pincode,
@@ -52,6 +60,7 @@ export class AddressRepository implements IAddressRepository {
         newAddress.state
       );
     } catch (error) {
+      console.error("error creating address", error);
       throw new Error(error as string);
     }
   }
@@ -75,6 +84,8 @@ export class AddressRepository implements IAddressRepository {
         ? new Address(
             address._id.toString(),
             address.userId.toString(),
+            address.addresseeName,
+            address.addresseePhone,
             address.fullAddress,
             address.locality,
             address.pincode,

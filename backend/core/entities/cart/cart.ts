@@ -6,6 +6,7 @@ export class Cart {
     public _id: string,
     public productId: string,
     public bookName: string,
+    public bookDescription: string,
     public amount: number,
     public userId: string,
     public images: string[],

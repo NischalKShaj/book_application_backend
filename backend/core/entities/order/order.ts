@@ -20,7 +20,8 @@ export class Order {
       | "shipped"
       | "out for delivery"
       | "delivered"
-      | "canceled",
+      | "canceled"
+      | "returned",
     public paymentMethod: string,
     public createdAt: Date,
     public updatedAt: Date
