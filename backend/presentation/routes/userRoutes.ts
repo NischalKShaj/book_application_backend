@@ -71,5 +71,11 @@ router.post("/add-address", userController.createAddress);
 // router for getting the address of the user
 router.get("/address/:id", userController.getAddress);
 
+// router for editing the address of the user
+router.put("/update-address/:id/:addressId", userController.editAddress);
+
+// router for deleting the address for a user
+router.delete("/remove-address/:addressId", userController.deleteAddress);
+
 // exporting the router
 export default router;

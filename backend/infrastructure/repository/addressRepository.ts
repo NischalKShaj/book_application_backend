@@ -66,33 +66,73 @@ export class AddressRepository implements IAddressRepository {
   }
 
   // for finding one address
-  async findOneAddress(
-    userId: string,
-    addressId: string
-  ): Promise<Address | null> {
+  async findOneAddress(addressId: string): Promise<Address | null> {
     try {
-      const address = await AddressModel.findById({ _id: addressId })
-        .populate({
-          path: "user",
-          select: "_id",
-        })
-        .lean();
+      const address = await AddressModel.findById({ _id: addressId }).lean();
 
       if (!address) return null;
 
-      return userId === address.userId.toString()
-        ? new Address(
-            address._id.toString(),
-            address.userId.toString(),
-            address.addresseeName,
-            address.addresseePhone,
-            address.fullAddress,
-            address.locality,
-            address.pincode,
-            address.city,
-            address.state
-          )
-        : null;
+      return {
+        ...address,
+        _id: address._id.toString(),
+        userId: address.userId.toString(),
+      };
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for editing the address
+  async editAddress(
+    // userId: string,
+    address: any,
+    addressId: string
+  ): Promise<Address | null> {
+    try {
+      const updatedAddress = await AddressModel.findByIdAndUpdate(
+        addressId,
+        { $set: address },
+        { new: true, lean: true }
+      );
+
+      if (!updatedAddress) {
+        throw new Error("No address found");
+      }
+
+      return {
+        ...updatedAddress,
+        _id: updatedAddress._id.toString(),
+        userId: updatedAddress.userId.toString(),
+      };
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for removing the address for the user
+  async removeAddress(addressId: string): Promise<Address | null> {
+    try {
+      const deletedAddress = await AddressModel.findByIdAndDelete(
+        addressId
+      ).lean();
+
+      // Check if the address was found and deleted
+      if (!deletedAddress) {
+        throw new Error("No address found for this ID.");
+      }
+
+      // If deletedAddress is not null, return the transformed data
+      return {
+        _id: deletedAddress._id?.toString() || "",
+        userId: deletedAddress.userId?.toString() || "",
+        addresseeName: deletedAddress.addresseeName || "",
+        addresseePhone: deletedAddress.addresseePhone || "",
+        fullAddress: deletedAddress.fullAddress || "",
+        locality: deletedAddress.locality || "",
+        pincode: deletedAddress.pincode || 0,
+        city: deletedAddress.city || "",
+        state: deletedAddress.state || "",
+      };
     } catch (error) {
       throw new Error(error as string);
     }

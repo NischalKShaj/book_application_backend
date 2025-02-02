@@ -25,6 +25,8 @@ export class UserController {
     this.addItem = this.addItem.bind(this);
     this.createAddress = this.createAddress.bind(this);
     this.getAddress = this.getAddress.bind(this);
+    this.editAddress = this.editAddress.bind(this);
+    this.deleteAddress = this.deleteAddress.bind(this);
   }
   // controller for signup
   async postSignup(req: Request, res: Response): Promise<void> {
@@ -191,6 +193,60 @@ export class UserController {
     } catch (error) {
       console.error("error", error);
       res.status(500).json("internal server error");
+    }
+  }
+
+  // controller for editing the address of the user
+  async editAddress(req: Request, res: Response) {
+    try {
+      const { id, addressId } = req.params;
+      const {
+        addresseeName,
+        addresseePhone,
+        fullAddress,
+        locality,
+        pincode,
+        state,
+        city,
+      } = req.body;
+      // use case for the addressUseCase
+      const editedAddress = await this.addressUseCase.editAddress(
+        id,
+        addressId,
+        addresseeName,
+        addresseePhone,
+        fullAddress,
+        locality,
+        pincode,
+        state,
+        city
+      );
+
+      res.status(200).json(editedAddress);
+    } catch (error) {
+      console.error("error", error);
+      res.status(500).json("internal server error");
+    }
+  }
+
+  // controller for removing the address
+  async deleteAddress(req: Request, res: Response): Promise<any> {
+    try {
+      const { addressId } = req.params;
+      const address = await this.addressUseCase.removeAddress(addressId);
+      if (!address.success) {
+        return res.status(400).json({
+          message: "bad request",
+          success: address.success,
+        });
+      }
+
+      return res.status(200).json({
+        message: address.message,
+        success: address.success,
+      });
+    } catch (error) {
+      res.status(500).json({ error: "internal server error" });
     }
   }
 }
