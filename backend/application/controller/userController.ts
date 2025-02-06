@@ -7,7 +7,7 @@ import { GenerateToken } from "../services/generateToken";
 import { ProductUseCase } from "../../core/useCases/productUseCase";
 import { CartUseCase } from "../../core/useCases/cartUseCase";
 import { AddressUseCase } from "../../core/useCases/addressUseCase";
-
+import { OrderUseCase } from "../../core/useCases/orderUseCase";
 // user controller
 export class UserController {
   constructor(
@@ -15,7 +15,8 @@ export class UserController {
     private generateToken: GenerateToken,
     private productUseCase: ProductUseCase,
     private cartUseCase: CartUseCase,
-    private addressUseCase: AddressUseCase
+    private addressUseCase: AddressUseCase,
+    private orderUseCase: OrderUseCase
   ) {
     this.postSignup = this.postSignup.bind(this);
     this.postLogin = this.postLogin.bind(this);
@@ -27,6 +28,7 @@ export class UserController {
     this.getAddress = this.getAddress.bind(this);
     this.editAddress = this.editAddress.bind(this);
     this.deleteAddress = this.deleteAddress.bind(this);
+    this.createOrder = this.createOrder.bind(this);
   }
   // controller for signup
   async postSignup(req: Request, res: Response): Promise<void> {
@@ -245,6 +247,24 @@ export class UserController {
         message: address.message,
         success: address.success,
       });
+    } catch (error) {
+      res.status(500).json({ error: "internal server error" });
+    }
+  }
+
+  // controller for creating the order
+  async createOrder(req: Request, res: Response) {
+    try {
+      const { userId, addressId, items, paymentMethod, totalAmount } = req.body;
+      console.log(
+        "logging the data",
+        userId,
+        addressId,
+        items,
+        paymentMethod,
+        totalAmount
+      );
+      res.status(201).json({ message: "order placed successfully..." });
     } catch (error) {
       res.status(500).json({ error: "internal server error" });
     }

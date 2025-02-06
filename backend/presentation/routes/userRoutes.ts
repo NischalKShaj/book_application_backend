@@ -14,6 +14,8 @@ import { CartRepository } from "../../infrastructure/repository/cartRepository";
 import { CartUseCase } from "../../core/useCases/cartUseCase";
 import { AddressRepository } from "../../infrastructure/repository/addressRepository";
 import { AddressUseCase } from "../../core/useCases/addressUseCase";
+import { OrderRepository } from "../../infrastructure/repository/orderRepository";
+import { OrderUseCase } from "../../core/useCases/orderUseCase";
 
 // creating the router instance
 const router = express.Router();
@@ -23,9 +25,17 @@ const userRepository = new UserRepository();
 const passwordService = new PasswordService();
 const generateToken = new GenerateToken();
 const productRepository = new ProductRepository();
+const orderRepository = new OrderRepository();
 const productUseCase = new ProductUseCase(productRepository);
 const cartRepository = new CartRepository();
 const addressRepository = new AddressRepository();
+const orderUseCase = new OrderUseCase(
+  orderRepository,
+  userRepository,
+  cartRepository,
+  productRepository,
+  addressRepository
+);
 const cartUseCase = new CartUseCase(
   cartRepository,
   productRepository,
@@ -39,7 +49,8 @@ const userController = new UserController(
   generateToken,
   productUseCase,
   cartUseCase,
-  addressUseCase
+  addressUseCase,
+  orderUseCase
 );
 
 // route for home page
@@ -76,6 +87,9 @@ router.put("/update-address/:id/:addressId", userController.editAddress);
 
 // router for deleting the address for a user
 router.delete("/remove-address/:addressId", userController.deleteAddress);
+
+// router for creating order for the user
+router.post("/cart/confirm-order", userController.createOrder);
 
 // exporting the router
 export default router;

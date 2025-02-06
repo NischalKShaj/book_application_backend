@@ -11,13 +11,17 @@ const port = process.env.PORT || 4000;
 
 // starting the server
 const server = async () => {
-  try {
-    await connection();
-    app.listen(port, () => {
-      console.log(`server running on : http://localhost:${port}`);
-    });
-  } catch (error) {
-    console.error("error", error);
+  while (true) {
+    try {
+      await connection();
+      app.listen(port, () => {
+        console.log(`🚀 Server running on: http://localhost:${port}`);
+      });
+      break;
+    } catch (error) {
+      console.error("❌ Error while starting the server:", error);
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
   }
 };
 

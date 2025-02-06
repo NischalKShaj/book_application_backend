@@ -36,10 +36,7 @@ export class OrderUseCase {
       if (!cart) {
         throw new Error("cart empty");
       }
-      const address = await this.addressRepository.findOneAddress(
-        user._id,
-        addressId
-      );
+      const address = await this.addressRepository.findOneAddress(addressId);
 
       if (!address) {
         throw new Error("address not found");
