@@ -29,6 +29,7 @@ export class UserController {
     this.editAddress = this.editAddress.bind(this);
     this.deleteAddress = this.deleteAddress.bind(this);
     this.createOrder = this.createOrder.bind(this);
+    this.getOrderHistory = this.getOrderHistory.bind(this);
   }
   // controller for signup
   async postSignup(req: Request, res: Response): Promise<void> {
@@ -253,7 +254,7 @@ export class UserController {
   }
 
   // controller for creating the order
-  async createOrder(req: Request, res: Response) {
+  async createOrder(req: Request, res: Response): Promise<any> {
     try {
       const { userId, addressId, items, paymentMethod, totalAmount } = req.body;
       console.log(
@@ -264,9 +265,41 @@ export class UserController {
         paymentMethod,
         totalAmount
       );
+      const date = new Date();
+      const result = await this.orderUseCase.createOrder(
+        userId,
+        totalAmount,
+        paymentMethod,
+        addressId,
+        date
+      );
+      if (!result) {
+        return res.status(400).json({ message: "failed to place the order" });
+      }
       res.status(201).json({ message: "order placed successfully..." });
     } catch (error) {
+      console.error("error while adding the product from controller", error);
       res.status(500).json({ error: "internal server error" });
+    }
+  }
+
+  // controller for getting the order history page
+  async getOrderHistory(req: Request, res: Response): Promise<any> {
+    try {
+      const { id } = req.params;
+      console.log("user id", id);
+      const result = await this.orderUseCase.findOrder(id);
+      if (!result) {
+        return res
+          .status(400)
+          .json({ message: "Unable to get the order history for the user" });
+      }
+      res
+        .status(202)
+        .json({ data: result, message: "fetched the data successfully" });
+    } catch (error) {
+      console.error("error", error);
+      res.status(500).json({ error: error });
     }
   }
 }

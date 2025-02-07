@@ -91,5 +91,8 @@ router.delete("/remove-address/:addressId", userController.deleteAddress);
 // router for creating order for the user
 router.post("/cart/confirm-order", userController.createOrder);
 
+// router for showing the orders in the order history page
+router.get("/orders/:id", userController.getOrderHistory);
+
 // exporting the router
 export default router;

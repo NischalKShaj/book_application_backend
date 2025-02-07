@@ -34,14 +34,17 @@ export class OrderRepository implements IOrderRepository {
           quantity: product.quantity,
         })),
         totalAmount: order.totalAmount,
-        address: order.addressId,
+        addressId: order.addressId,
         status: order.status,
         paymentMethod: order.paymentMethod,
         createdAt: resetTimeToMidnight(new Date(order.createdAt)),
         updatedAt: resetTimeToMidnight(new Date(order.updatedAt)),
       };
 
+      console.log("order data", orderData);
+
       const saveOrder = await OrderModel.create(orderData);
+      console.log("saved ORder", saveOrder);
 
       const formattedProducts = saveOrder.products.map((product) => ({
         productId: product.productId.toString(),
@@ -50,6 +53,8 @@ export class OrderRepository implements IOrderRepository {
         amount: product.amount,
         quantity: product.quantity,
       }));
+
+      console.log("address id", saveOrder.addressId.toString());
 
       return new Order(
         saveOrder._id.toString(),
@@ -64,6 +69,7 @@ export class OrderRepository implements IOrderRepository {
         resetTimeToMidnight(new Date(order.updatedAt))
       );
     } catch (error) {
+      console.error("error from repository", error);
       throw new Error(error as string);
     }
   }
@@ -89,8 +95,8 @@ export class OrderRepository implements IOrderRepository {
                     productId: product._id.toString(),
                     images: product.images,
                     bookName: product.bookName,
-
                     amount: product.amount,
+                    quantity: item.quantity,
                   }
                 : null;
             })

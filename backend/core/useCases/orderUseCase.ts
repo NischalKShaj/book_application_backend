@@ -43,7 +43,7 @@ export class OrderUseCase {
       }
 
       const products = cart.map((item) => ({
-        productId: item._id,
+        productId: item.productId,
         bookName: item.bookName,
         images: item.images,
         amount: item.amount,
@@ -75,6 +75,7 @@ export class OrderUseCase {
           product.productId
         );
         if (!existingProduct) {
+          console.error("error from product section");
           throw new Error("product not found");
         }
         const newStock = existingProduct.stock - product.quantity;
@@ -89,8 +90,11 @@ export class OrderUseCase {
       const cartIds = cart.map((c) => c._id);
       await this.cartRepository.clearCart(cartIds, userId);
 
+      console.log("saved order", savedOrder);
+
       return savedOrder;
     } catch (error) {
+      console.log("error from use case", error);
       throw new Error(error as string);
     }
   }
