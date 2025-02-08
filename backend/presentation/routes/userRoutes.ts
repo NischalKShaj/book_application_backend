@@ -7,6 +7,7 @@ import { UserController } from "../../application/controller/userController";
 import { UserUseCase } from "../../core/useCases/userUseCase";
 import { AuthService } from "../../application/services/authServices";
 import { PasswordService } from "../../infrastructure/services/passwordServices";
+import { EmailSender } from "../../application/services/emailService";
 import { GenerateToken } from "../../application/services/generateToken";
 import { ProductUseCase } from "../../core/useCases/productUseCase";
 import { ProductRepository } from "../../infrastructure/repository/productRepository";
@@ -23,6 +24,7 @@ const router = express.Router();
 // injecting the dependencies
 const userRepository = new UserRepository();
 const passwordService = new PasswordService();
+const emailService = new EmailSender();
 const generateToken = new GenerateToken();
 const productRepository = new ProductRepository();
 const orderRepository = new OrderRepository();
@@ -50,7 +52,8 @@ const userController = new UserController(
   productUseCase,
   cartUseCase,
   addressUseCase,
-  orderUseCase
+  orderUseCase,
+  emailService
 );
 
 // route for home page
@@ -93,6 +96,9 @@ router.post("/cart/confirm-order", userController.createOrder);
 
 // router for showing the orders in the order history page
 router.get("/orders/:id", userController.getOrderHistory);
+
+// router for sending the contact
+router.post("/contact", userController.contact);
 
 // exporting the router
 export default router;

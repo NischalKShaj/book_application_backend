@@ -3,6 +3,7 @@
 // importing the required modules
 import { Request, Response } from "express";
 import { AuthService } from "../services/authServices";
+import { EmailSender } from "../services/emailService";
 import { GenerateToken } from "../services/generateToken";
 import { ProductUseCase } from "../../core/useCases/productUseCase";
 import { CartUseCase } from "../../core/useCases/cartUseCase";
@@ -16,7 +17,8 @@ export class UserController {
     private productUseCase: ProductUseCase,
     private cartUseCase: CartUseCase,
     private addressUseCase: AddressUseCase,
-    private orderUseCase: OrderUseCase
+    private orderUseCase: OrderUseCase,
+    private emailSender: EmailSender
   ) {
     this.postSignup = this.postSignup.bind(this);
     this.postLogin = this.postLogin.bind(this);
@@ -30,6 +32,7 @@ export class UserController {
     this.deleteAddress = this.deleteAddress.bind(this);
     this.createOrder = this.createOrder.bind(this);
     this.getOrderHistory = this.getOrderHistory.bind(this);
+    this.contact = this.contact.bind(this);
   }
   // controller for signup
   async postSignup(req: Request, res: Response): Promise<void> {
@@ -300,6 +303,37 @@ export class UserController {
     } catch (error) {
       console.error("error", error);
       res.status(500).json({ error: error });
+    }
+  }
+
+  // controller for sending the mail from the client to us
+  async contact(req: Request, res: Response): Promise<any> {
+    try {
+      const { email, first_name, last_name, phone, message } = req.body;
+      console.log(
+        "content in the req.body",
+        email,
+        first_name,
+        last_name,
+        phone,
+        message
+      );
+      const result = await this.emailSender.sendFeedback(
+        email,
+        first_name,
+        last_name,
+        phone,
+        message
+      );
+      if (!result.success) {
+        return res
+          .status(400)
+          .json({ message: "error while sending the email" });
+      }
+      res.status(200).json({ message: "Email send successfully" });
+    } catch (error) {
+      console.error("error sending the mail");
+      res.status(500).json({ message: error });
     }
   }
 }
