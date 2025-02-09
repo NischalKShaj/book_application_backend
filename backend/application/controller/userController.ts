@@ -33,6 +33,7 @@ export class UserController {
     this.createOrder = this.createOrder.bind(this);
     this.getOrderHistory = this.getOrderHistory.bind(this);
     this.contact = this.contact.bind(this);
+    this.getRecentOrders = this.getRecentOrders.bind(this);
   }
   // controller for signup
   async postSignup(req: Request, res: Response): Promise<void> {
@@ -318,6 +319,9 @@ export class UserController {
         phone,
         message
       );
+      if (!email || !first_name || !last_name || !phone || !message) {
+        return res.status(400).json({ message: "all fields are required" });
+      }
       const result = await this.emailSender.sendFeedback(
         email,
         first_name,
@@ -333,6 +337,23 @@ export class UserController {
       res.status(200).json({ message: "Email send successfully" });
     } catch (error) {
       console.error("error sending the mail");
+      res.status(500).json({ message: error });
+    }
+  }
+
+  // for getting the last 3 order details for the user
+  async getRecentOrders(req: Request, res: Response): Promise<any> {
+    try {
+      const { id } = req.params;
+      const result = await this.orderUseCase.getRecentOrders(id);
+      if (!result?.success) {
+        return res.status(400).json({ message: "something went wrong" });
+      }
+      res
+        .status(202)
+        .json({ addresses: result.address, orders: result?.orders });
+    } catch (error) {
+      console.error("error from controller", error);
       res.status(500).json({ message: error });
     }
   }

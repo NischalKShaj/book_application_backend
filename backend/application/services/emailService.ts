@@ -5,8 +5,9 @@ import dotenv from "dotenv";
 import createTransport from "nodemailer";
 dotenv.config();
 
-// setting up the nodemailer
+// setting up the nodemailer class
 export class EmailSender {
+  // for sending the mail to the team from the user
   async sendFeedback(
     from: string,
     first_name: string,
@@ -43,4 +44,7 @@ export class EmailSender {
       throw new Error(error as string);
     }
   }
+
+  // for generating the otp for the user signup and sending the otp to both mail and phone
+  async sendOTP(req: Request, res: Response) {}
 }

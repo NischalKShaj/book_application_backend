@@ -100,5 +100,8 @@ router.get("/orders/:id", userController.getOrderHistory);
 // router for sending the contact
 router.post("/contact", userController.contact);
 
+// router for getting the data in the profile page
+router.get("/profile-data/:id", userController.getRecentOrders);
+
 // exporting the router
 export default router;

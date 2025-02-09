@@ -133,4 +133,43 @@ export class OrderUseCase {
       throw new Error(error as string);
     }
   }
+
+  // for getting the recent orders details
+  async getRecentOrders(userId: string) {
+    try {
+      const user = await this.userRepository.findByUserId(userId);
+      if (!user) {
+        throw new Error("user not found");
+      }
+      const orders = await this.orderRepository.getUserOrder(userId);
+      if (!orders) {
+        return null;
+      }
+
+      const recentOrders = orders.sort(
+        (a, b) =>
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+      );
+
+      // Get only the last 3 orders
+      const latestOrders = recentOrders.slice(0, 3);
+      const addressIds = latestOrders.map((order) => order.addressId);
+
+      console.log("last orders", latestOrders);
+
+      // fetching all the addresses
+      const addresses = await Promise.all(
+        addressIds.map(async (addressId) => {
+          return this.addressRepository.findOneAddress(addressId);
+        })
+      );
+
+      console.log("address", addresses);
+
+      return { success: true, address: addresses, orders: latestOrders };
+    } catch (error) {
+      console.error("error from use case", error);
+      throw new Error(error as string);
+    }
+  }
 }
