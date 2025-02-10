@@ -58,4 +58,29 @@ export class UserUseCase {
       throw new Error("invalid user credentials");
     }
   }
+
+  // for updating the user with id
+  async findById(
+    id: string,
+    username: string,
+    email: string,
+    phoneNumber: string
+  ): Promise<User | null> {
+    try {
+      const user = await this.userRepository.findByUserId(id);
+      if (!user) {
+        throw new Error("user not found");
+      }
+      const updatedUserData = await this.userRepository.updateUser(
+        id,
+        username,
+        email,
+        phoneNumber
+      );
+      console.log("user use case", updatedUserData);
+      return updatedUserData;
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
 }

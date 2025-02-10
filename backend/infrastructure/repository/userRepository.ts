@@ -62,6 +62,36 @@ export class UserRepository implements IUserRepository {
           )
         : null;
     } catch (error) {
+      console.error("error", error);
+      throw new Error(error as string);
+    }
+  }
+
+  // for updating the user data
+  async updateUser(
+    id: string,
+    username: string,
+    email: string,
+    phoneNumber: string
+  ): Promise<User | null> {
+    try {
+      const user = await UserModel.findByIdAndUpdate(
+        id,
+        { $set: { username, email, phoneNumber } },
+        { new: true }
+      );
+      if (!user) {
+        throw new Error("user not updated");
+      }
+      console.log("user repo", user);
+      return {
+        _id: user._id.toString(),
+        username: user.username,
+        email: user.email,
+        phoneNumber: user.phoneNumber,
+        password: user.password,
+      };
+    } catch (error) {
       throw new Error(error as string);
     }
   }

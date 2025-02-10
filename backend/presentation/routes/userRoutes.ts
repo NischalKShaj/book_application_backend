@@ -103,5 +103,8 @@ router.post("/contact", userController.contact);
 // router for getting the data in the profile page
 router.get("/profile-data/:id", userController.getRecentOrders);
 
+// router for updating the profile for the user
+router.put("/update-profile/:id", userController.updateUserProfile);
+
 // exporting the router
 export default router;

@@ -34,6 +34,7 @@ export class UserController {
     this.getOrderHistory = this.getOrderHistory.bind(this);
     this.contact = this.contact.bind(this);
     this.getRecentOrders = this.getRecentOrders.bind(this);
+    this.updateUserProfile = this.updateUserProfile.bind(this);
   }
   // controller for signup
   async postSignup(req: Request, res: Response): Promise<void> {
@@ -352,6 +353,28 @@ export class UserController {
       res
         .status(202)
         .json({ addresses: result.address, orders: result?.orders });
+    } catch (error) {
+      console.error("error from controller", error);
+      res.status(500).json({ message: error });
+    }
+  }
+
+  // for updating the profile for the user
+  async updateUserProfile(req: Request, res: Response): Promise<any> {
+    try {
+      const { id } = req.params;
+      const { username, email, phoneNumber } = req.body;
+      console.log("controller", username, email, phoneNumber);
+      const result = await this.authService.updateProfile(
+        id,
+        username,
+        email,
+        phoneNumber
+      );
+      if (!result.success) {
+        return res.status(400).json({ message: "user not updated" });
+      }
+      res.status(200).json({ data: result.data });
     } catch (error) {
       console.error("error from controller", error);
       res.status(500).json({ message: error });

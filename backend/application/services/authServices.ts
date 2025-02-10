@@ -23,4 +23,21 @@ export class AuthService {
   async login(email: string, password: string): Promise<User> {
     return this.userUseCase.findByEmail(email, password);
   }
+
+  // for updating the user profile
+  async updateProfile(
+    id: string,
+    username: string,
+    email: string,
+    phoneNumber: string
+  ): Promise<{ success: Boolean; data: User | null }> {
+    const user = await this.userUseCase.findById(
+      id,
+      username,
+      email,
+      phoneNumber
+    );
+    console.log("auth service", user);
+    return { success: true, data: user };
+  }
 }
