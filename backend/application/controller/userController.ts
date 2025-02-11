@@ -35,6 +35,7 @@ export class UserController {
     this.contact = this.contact.bind(this);
     this.getRecentOrders = this.getRecentOrders.bind(this);
     this.updateUserProfile = this.updateUserProfile.bind(this);
+    this.removeCartItem = this.removeCartItem.bind(this);
   }
   // controller for signup
   async postSignup(req: Request, res: Response): Promise<void> {
@@ -378,6 +379,24 @@ export class UserController {
     } catch (error) {
       console.error("error from controller", error);
       res.status(500).json({ message: error });
+    }
+  }
+
+  // for removing item in the cart
+  async removeCartItem(req: Request, res: Response): Promise<any> {
+    try {
+      const { cartId, userId } = req.params;
+      console.log("cart, user", cartId, userId);
+      console.log("inside");
+      const result = await this.cartUseCase.removeItem(cartId, userId);
+      console.log("result from controller", result);
+      if (!result.success) {
+        return res.status(400).json("item not removed");
+      }
+      res.status(202).json(result.cart);
+    } catch (error) {
+      console.error("error", error);
+      res.status(500).json({ error: error });
     }
   }
 }

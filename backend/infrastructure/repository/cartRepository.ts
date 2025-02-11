@@ -178,7 +178,7 @@ export class CartRepository implements ICartRepository {
     }
   }
 
-  // for clearing the Cart
+  // for clearing the Cart after order confirmation
   async clearCart(cartId: string[], userId: string): Promise<void> {
     try {
       await CartModel.deleteMany({ _id: { $in: cartId }, userId });
@@ -192,7 +192,7 @@ export class CartRepository implements ICartRepository {
     try {
       return await CartModel.findById(cartId);
     } catch (error) {
-      throw new Error();
+      throw new Error(error as string);
     }
   }
 }

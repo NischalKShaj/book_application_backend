@@ -75,7 +75,10 @@ export class CartUseCase {
   }
 
   // for removing the item from the cart
-  async removeItem(cartId: string, userId: string): Promise<string> {
+  async removeItem(
+    cartId: string,
+    userId: string
+  ): Promise<{ success: Boolean; cart: string }> {
     try {
       const user = await this.userRepository.findByUserId(userId);
       if (!user) {
@@ -83,8 +86,12 @@ export class CartUseCase {
       }
 
       const cart = await this.cartRepository.removeItem(cartId);
-      return cart;
+      if (!cart) {
+        return { success: false, cart: "item not removed" };
+      }
+      return { success: true, cart: cart };
     } catch (error) {
+      console.error("error", error);
       throw new Error(error as string);
     }
   }

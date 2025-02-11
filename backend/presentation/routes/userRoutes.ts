@@ -106,5 +106,8 @@ router.get("/profile-data/:id", userController.getRecentOrders);
 // router for updating the profile for the user
 router.put("/update-profile/:id", userController.updateUserProfile);
 
+// router for removing the item from the cart
+router.delete("/remove-item/:cartId/:userId", userController.removeCartItem);
+
 // exporting the router
 export default router;
