@@ -94,6 +94,9 @@ router.delete("/remove-address/:addressId", userController.deleteAddress);
 // router for creating order for the user
 router.post("/cart/confirm-order", userController.createOrder);
 
+// router for removing the item from the cart
+router.delete("/remove-item/:cartId/:userId", userController.removeCartItem);
+
 // router for showing the orders in the order history page
 router.get("/orders/:id", userController.getOrderHistory);
 
@@ -106,8 +109,11 @@ router.get("/profile-data/:id", userController.getRecentOrders);
 // router for updating the profile for the user
 router.put("/update-profile/:id", userController.updateUserProfile);
 
-// router for removing the item from the cart
-router.delete("/remove-item/:cartId/:userId", userController.removeCartItem);
+// router for online payment
+router.post("/online-payment", userController.createRazorPayOrder);
+
+// router for confirming the payment
+router.post("/api/payment-success", userController.verifyPayment);
 
 // exporting the router
 export default router;

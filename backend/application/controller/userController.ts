@@ -2,6 +2,9 @@
 
 // importing the required modules
 import { Request, Response } from "express";
+import dotenv from "dotenv";
+import crypto from "crypto";
+dotenv.config();
 import { AuthService } from "../services/authServices";
 import { EmailSender } from "../services/emailService";
 import { GenerateToken } from "../services/generateToken";
@@ -9,7 +12,14 @@ import { ProductUseCase } from "../../core/useCases/productUseCase";
 import { CartUseCase } from "../../core/useCases/cartUseCase";
 import { AddressUseCase } from "../../core/useCases/addressUseCase";
 import { OrderUseCase } from "../../core/useCases/orderUseCase";
+import Razorpay from "razorpay";
 // user controller
+
+// configuring razorpay
+const razorpay = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+});
 export class UserController {
   constructor(
     private authService: AuthService,
@@ -36,6 +46,8 @@ export class UserController {
     this.getRecentOrders = this.getRecentOrders.bind(this);
     this.updateUserProfile = this.updateUserProfile.bind(this);
     this.removeCartItem = this.removeCartItem.bind(this);
+    this.createRazorPayOrder = this.createRazorPayOrder.bind(this);
+    this.verifyPayment = this.verifyPayment.bind(this);
   }
   // controller for signup
   async postSignup(req: Request, res: Response): Promise<void> {
@@ -397,6 +409,56 @@ export class UserController {
     } catch (error) {
       console.error("error", error);
       res.status(500).json({ error: error });
+    }
+  }
+
+  // for creating order in the razorpay
+  async createRazorPayOrder(req: Request, res: Response): Promise<any> {
+    try {
+      const { amount, userId, username, email, phone } = req.body;
+
+      if (!userId || !username || !email || !phone) {
+        return res
+          .status(400)
+          .json({ success: false, message: "User details missing" });
+      }
+      // creating the order
+      const orders = await razorpay.orders.create({
+        amount: amount * 100,
+        currency: "INR",
+        receipt: `receipt_${Date.now()}`,
+        notes: { userId, username, email, phone },
+      });
+      res.json(orders);
+    } catch (error) {
+      res.status(500).json({ error: error });
+    }
+  }
+
+  // controller for verifying the payment
+  async verifyPayment(req: Request, res: Response): Promise<any> {
+    try {
+      const { orderData, response } = req.body;
+
+      console.log("req.body", orderData, response);
+      const secret = process.env.RAZORPAY_KEY_SECRET;
+      if (!secret) {
+        throw new Error("secret key not found");
+      }
+      const generatedSignature = crypto
+        .createHmac("sha256", secret)
+        .update(response.razorpay_order_id + "|" + response.razorpay_payment_id)
+        .digest("hex");
+
+      console.log("generate", generatedSignature);
+      console.log("razorpay signature", response.razorpay_signature);
+      if (generatedSignature === response.razorpay_signature) {
+        res.json({ success: true, message: "Payment verified successfully" });
+      } else {
+        res.status(400).json({ success: false, message: "Invalid signature" });
+      }
+    } catch (error) {
+      console.error("error", error);
     }
   }
 }
