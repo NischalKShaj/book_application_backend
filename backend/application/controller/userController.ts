@@ -48,6 +48,7 @@ export class UserController {
     this.removeCartItem = this.removeCartItem.bind(this);
     this.createRazorPayOrder = this.createRazorPayOrder.bind(this);
     this.verifyPayment = this.verifyPayment.bind(this);
+    this.returnCancelOrder = this.returnCancelOrder.bind(this);
   }
   // controller for signup
   async postSignup(req: Request, res: Response): Promise<void> {
@@ -476,8 +477,39 @@ export class UserController {
         res.status(400).json({ success: false, message: "Invalid signature" });
       }
     } catch (error) {
-      res.status(500).json({ error: error });
       console.error("error", error);
+      res.status(500).json({ error: error });
+    }
+  }
+
+  // for returning and cancelling the order
+  async returnCancelOrder(req: Request, res: Response): Promise<any> {
+    try {
+      const { username, email, reason, orderStatus } = req.body;
+      const { userId, orderId } = req.params;
+
+      console.log("reason", req.body);
+      if (!username || !email || !reason || !orderStatus) {
+        return res
+          .status(400)
+          .json({ message: "All the fields are mandatory" });
+      }
+      const sendMail = await this.emailSender.returnCancelOrder(
+        email,
+        username,
+        reason,
+        orderStatus,
+        orderId
+      );
+      if (!sendMail) {
+        return res
+          .status(400)
+          .json({ message: "Issue while sending your response" });
+      }
+      res.status(202).json({ message: "Your reason submitted" });
+    } catch (error) {
+      console.error("error", error);
+      res.status(500).json({ error: error });
     }
   }
 }

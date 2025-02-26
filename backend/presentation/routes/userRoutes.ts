@@ -115,5 +115,11 @@ router.post("/online-payment", userController.createRazorPayOrder);
 // router for confirming the payment
 router.post("/api/payment-success", userController.verifyPayment);
 
+// router for cancelling and returning the product
+router.post(
+  "/order/return-cancel/:userId/:orderId",
+  userController.returnCancelOrder
+);
+
 // exporting the router
 export default router;
