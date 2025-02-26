@@ -450,6 +450,24 @@ export class UserController {
         .update(response.razorpay_order_id + "|" + response.razorpay_payment_id)
         .digest("hex");
 
+      const { userId, addressId, items, paymentMethod, totalAmount } =
+        orderData;
+      console.log(
+        `userid ${userId}, addressId ${addressId}, items ${items}, payment method ${paymentMethod}, total amount${totalAmount}`
+      );
+      const date = new Date();
+      const result = await this.orderUseCase.createOrder(
+        userId,
+        totalAmount,
+        paymentMethod,
+        addressId,
+        date
+      );
+
+      if (!result) {
+        return res.status(400).json({ message: "failed to place the order" });
+      }
+
       console.log("generate", generatedSignature);
       console.log("razorpay signature", response.razorpay_signature);
       if (generatedSignature === response.razorpay_signature) {
@@ -458,6 +476,7 @@ export class UserController {
         res.status(400).json({ success: false, message: "Invalid signature" });
       }
     } catch (error) {
+      res.status(500).json({ error: error });
       console.error("error", error);
     }
   }
