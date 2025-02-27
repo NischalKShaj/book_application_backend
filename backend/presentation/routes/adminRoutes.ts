@@ -11,12 +11,18 @@ import { ProductUseCase } from "../../core/useCases/productUseCase";
 import { ProductRepository } from "../../infrastructure/repository/productRepository";
 import { uploadImage } from "../middleware/multer";
 import { authenticateUserJwt } from "../middleware/authToken";
+import { UserUseCase } from "../../core/useCases/userUseCase";
+import { UserRepository } from "../../infrastructure/repository/userRepository";
+import { PasswordService } from "../../infrastructure/services/passwordServices";
 
 // creating the router instance
 const router = express.Router();
 
 // adding dependency injection
 const adminRepository = new AdminRepository();
+const userRepository = new UserRepository();
+const passwordService = new PasswordService();
+const userUseCase = new UserUseCase(userRepository, passwordService);
 const productRepository = new ProductRepository();
 const generateToken = new GenerateToken();
 const productUseCase = new ProductUseCase(productRepository);
@@ -25,7 +31,8 @@ const adminAuthService = new AdminAuthService(adminUseCase);
 const adminController = new AdminController(
   adminAuthService,
   generateToken,
-  productUseCase
+  productUseCase,
+  userUseCase
 );
 
 // creating the route for the admin dashboard
@@ -46,6 +53,9 @@ router.post(
   uploadImage,
   adminController.addProduct
 );
+
+// router for getting all the users
+router.get("/get-all-users", adminController.getAllUsers);
 
 // exporting the router for the admin
 export default router;

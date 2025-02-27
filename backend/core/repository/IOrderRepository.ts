@@ -8,4 +8,5 @@ export interface IOrderRepository {
   createOrder(order: Order): Promise<Order>;
   getUserOrder(userId: string): Promise<Order[] | null>;
   cancelOrder(orderId: string): Promise<Order | null>;
+  enableCancelOrder(orderId: string): Promise<boolean>;
 }

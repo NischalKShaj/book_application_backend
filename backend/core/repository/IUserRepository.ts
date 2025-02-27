@@ -14,4 +14,5 @@ export interface IUserRepository {
     email: string,
     phoneNumber: string
   ): Promise<User | null>;
+  findUsers(): Promise<User[] | null>;
 }

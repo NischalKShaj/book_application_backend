@@ -69,6 +69,10 @@ const orderSchema = new Schema({
     type: Date,
     default: Date.now(),
   },
+  isCancel: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 export const order = model("order", orderSchema);

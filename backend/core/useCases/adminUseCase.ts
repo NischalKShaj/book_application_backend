@@ -8,6 +8,7 @@ import { IAdminRepository } from "../repository/IAdminRepository";
 export class AdminUseCase {
   constructor(private adminRepository: IAdminRepository) {}
 
+  // for finding admin
   async findByEmail(email: string, password: string): Promise<Admin> {
     try {
       const admin = await this.adminRepository.findByEmail(email, password);

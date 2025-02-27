@@ -506,6 +506,15 @@ export class UserController {
           .status(400)
           .json({ message: "Issue while sending your response" });
       }
+      const enableCancel = await this.orderUseCase.enableCancelOrder(
+        userId,
+        orderId
+      );
+      if (!enableCancel) {
+        return res
+          .status(400)
+          .json({ message: "Issue while sending your response" });
+      }
       res.status(202).json({ message: "Your reason submitted" });
     } catch (error) {
       console.error("error", error);

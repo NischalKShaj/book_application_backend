@@ -39,6 +39,7 @@ export class OrderRepository implements IOrderRepository {
         paymentMethod: order.paymentMethod,
         createdAt: resetTimeToMidnight(new Date(order.createdAt)),
         updatedAt: resetTimeToMidnight(new Date(order.updatedAt)),
+        isCancel: order.isCancel,
       };
 
       console.log("order data", orderData);
@@ -66,7 +67,8 @@ export class OrderRepository implements IOrderRepository {
         saveOrder.status,
         saveOrder.paymentMethod,
         resetTimeToMidnight(new Date(saveOrder.createdAt)),
-        resetTimeToMidnight(new Date(order.updatedAt))
+        resetTimeToMidnight(new Date(order.updatedAt)),
+        saveOrder.isCancel
       );
     } catch (error) {
       console.error("error from repository", error);
@@ -121,7 +123,8 @@ export class OrderRepository implements IOrderRepository {
             order.status,
             order.paymentMethod,
             order.createdAt,
-            order.updatedAt
+            order.updatedAt,
+            order.isCancel
           );
         })
       );
@@ -166,9 +169,29 @@ export class OrderRepository implements IOrderRepository {
           order.status,
           order.paymentMethod,
           order.createdAt,
-          resetTimeToMidnight(new Date())
+          resetTimeToMidnight(new Date()),
+          order.isCancel
         );
-      } else return null;
+      } else {
+        return null;
+      }
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for enabling the cancel button for the order
+  async enableCancelOrder(orderId: string): Promise<boolean> {
+    try {
+      const order = await OrderModel.findByIdAndUpdate(
+        orderId,
+        { $set: { isCancel: true } },
+        { new: true }
+      );
+      if (!order) {
+        return false;
+      }
+      return true;
     } catch (error) {
       throw new Error(error as string);
     }

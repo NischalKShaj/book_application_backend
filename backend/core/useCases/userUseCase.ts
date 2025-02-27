@@ -83,4 +83,18 @@ export class UserUseCase {
       throw new Error(error as string);
     }
   }
+
+  // for getting all the users
+  async getAllUsers(): Promise<{ success: boolean; data: User[] | null }> {
+    try {
+      const allUsers = await this.userRepository.findUsers();
+      if (!allUsers) {
+        return { success: false, data: null };
+      }
+      return { success: true, data: allUsers };
+    } catch (error) {
+      console.error("error from usecase", error);
+      throw new Error(error as string);
+    }
+  }
 }

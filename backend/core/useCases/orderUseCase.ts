@@ -60,7 +60,8 @@ export class OrderUseCase {
         "pending",
         paymentMethod,
         createdAt,
-        createdAt
+        createdAt,
+        false
       );
 
       const savedOrder = await this.orderRepository.createOrder(order as Order);
@@ -167,6 +168,30 @@ export class OrderUseCase {
       console.log("address", addresses);
 
       return { success: true, address: addresses, orders: latestOrders };
+    } catch (error) {
+      console.error("error from use case", error);
+      throw new Error(error as string);
+    }
+  }
+
+  // for enabling the flag for cancel req received
+  async enableCancelOrder(userId: string, orderId: string) {
+    try {
+      const user = await this.userRepository.findByUserId(userId);
+      if (!user) {
+        throw new Error("user not found");
+      }
+      const orders = await this.orderRepository.getUserOrder(userId);
+      if (!orders) {
+        return null;
+      }
+      const enableCancel = await this.orderRepository.enableCancelOrder(
+        orderId
+      );
+      if (!enableCancel) {
+        return { success: false, message: "Couldn't update the status" };
+      }
+      return { success: true, message: "Updated successfully" };
     } catch (error) {
       console.error("error from use case", error);
       throw new Error(error as string);

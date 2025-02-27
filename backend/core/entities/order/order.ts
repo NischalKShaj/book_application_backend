@@ -24,6 +24,7 @@ export class Order {
       | "returned",
     public paymentMethod: string,
     public createdAt: Date,
-    public updatedAt: Date
+    public updatedAt: Date,
+    public isCancel: boolean
   ) {}
 }

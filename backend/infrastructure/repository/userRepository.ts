@@ -3,7 +3,7 @@
 // importing the required modules
 import { User } from "../../core/entities/user/user";
 import { IUserRepository } from "../../core/repository/IUserRepository";
-import { user as UserModel } from "../database/schema/userSchema";
+import { user, user as UserModel } from "../database/schema/userSchema";
 
 // creating the user repo
 export class UserRepository implements IUserRepository {
@@ -92,6 +92,26 @@ export class UserRepository implements IUserRepository {
         password: user.password,
       };
     } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for getting all the users
+  async findUsers(): Promise<User[] | null> {
+    try {
+      const allUsers = await UserModel.find();
+      if (allUsers.length === 0) {
+        return null;
+      }
+      return allUsers.map((user) => {
+        const userObject = user.toObject();
+        return {
+          ...userObject,
+          _id: user._id.toString(),
+        };
+      });
+    } catch (error) {
+      console.error("error from repo", error);
       throw new Error(error as string);
     }
   }

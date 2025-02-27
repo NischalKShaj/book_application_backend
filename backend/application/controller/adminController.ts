@@ -5,17 +5,20 @@ import { Request, Response } from "express";
 import { AdminAuthService } from "../services/adminAuthService";
 import { GenerateToken } from "../services/generateToken";
 import { ProductUseCase } from "../../core/useCases/productUseCase";
+import { UserUseCase } from "../../core/useCases/userUseCase";
 
 // creating the class for the admin controller
 export class AdminController {
   constructor(
     private adminAuthService: AdminAuthService,
     private generateToken: GenerateToken,
-    private productUseCase: ProductUseCase
+    private productUseCase: ProductUseCase,
+    private userUseCase: UserUseCase
   ) {
     this.postLogin = this.postLogin.bind(this);
     this.getProducts = this.getProducts.bind(this);
     this.addProduct = this.addProduct.bind(this);
+    this.getAllUsers = this.getAllUsers.bind(this);
   }
   // controller for the admin login
   async postLogin(req: Request, res: Response): Promise<void> {
@@ -80,6 +83,21 @@ export class AdminController {
       console.error("error", error);
       res.status(500).json("internal server error");
       return;
+    }
+  }
+
+  // for getting all the users
+  async getAllUsers(req: Request, res: Response): Promise<any> {
+    try {
+      console.log("inside");
+      const allUsers = await this.userUseCase.getAllUsers();
+      if (!allUsers) {
+        return res.status(400).json({ message: "No users found" });
+      }
+      res.status(200).json({ users: allUsers.data });
+    } catch (error) {
+      console.error("error from controller", error);
+      res.status(500).json({ error: error });
     }
   }
 }
