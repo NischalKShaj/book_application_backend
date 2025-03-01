@@ -8,8 +8,8 @@ export class Product {
     public _id: string,
     public bookName: string,
     public bookDescription: string,
-    public stock: number,
     public amount: number,
+    public stock: number,
     public images: string[]
   ) {}
 }

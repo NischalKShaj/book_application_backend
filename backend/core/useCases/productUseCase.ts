@@ -63,4 +63,32 @@ export class ProductUseCase {
       throw new Error(error as string);
     }
   }
+
+  // function for editing the product
+  async editProduct(
+    id: string,
+    update: Partial<Product>
+  ): Promise<Product | null> {
+    try {
+      const product = await this.productRepository.editProduct(id, update);
+      return product;
+    } catch (error) {
+      console.error("error for use case", error);
+      throw new Error(error as string);
+    }
+  }
+
+  // for removing the product
+  async removeProduct(id: string): Promise<boolean> {
+    try {
+      const remove = await this.productRepository.removeProduct(id);
+      if (!remove) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("error in use case", error);
+      throw new Error(error as string);
+    }
+  }
 }

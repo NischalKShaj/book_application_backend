@@ -124,4 +124,45 @@ export class ProductRepository implements IProductRepository {
       throw new Error(error as string);
     }
   }
+
+  // for editing the product
+  async editProduct(
+    id: string,
+    update: Partial<Product>
+  ): Promise<Product | null> {
+    try {
+      const updatedProduct = await ProductModel.findByIdAndUpdate(
+        id,
+        { $set: update }, // ✅ Only update the fields provided
+        { new: true, runValidators: true } // ✅ Return updated product & apply validations
+      );
+      console.log("updated product", updatedProduct);
+      if (!updatedProduct) {
+        throw new Error("product not found");
+      }
+      // Convert to plain object and extract _id separately
+      const { _id, ...productData } = updatedProduct.toObject();
+
+      return {
+        _id: _id.toString(), // ✅ Ensure _id is a string
+        ...productData, // ✅ Spread only the remaining properties
+      };
+    } catch (error) {
+      console.error("error", error);
+      throw new Error(error as string);
+    }
+  }
+
+  // for removing the product
+  async removeProduct(id: string): Promise<boolean> {
+    try {
+      const removed = await ProductModel.findByIdAndDelete(id);
+      if (!removed) {
+        return false;
+      }
+      return true;
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
 }

@@ -57,5 +57,14 @@ router.post(
 // router for getting all the users
 router.get("/get-all-users", adminController.getAllUsers);
 
+// router for getting the product
+router.get("/product/:id", adminController.getProduct);
+
+// router for updating the product
+router.put("/edit-product/:id", uploadImage, adminController.editProduct);
+
+// router for deleting the product
+router.delete("/delete/product/:id", adminController.removeProduct);
+
 // exporting the router for the admin
 export default router;
