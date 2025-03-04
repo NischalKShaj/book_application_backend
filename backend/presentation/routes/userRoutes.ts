@@ -92,7 +92,7 @@ router.put("/update-address/:id/:addressId", userController.editAddress);
 router.delete("/remove-address/:addressId", userController.deleteAddress);
 
 // router for creating order for the user
-router.post("/cart/confirm-order", userController.createOrder);
+// router.post("/cart/confirm-order", userController.createOrder);
 
 // router for removing the item from the cart
 router.delete("/remove-item/:cartId/:userId", userController.removeCartItem);
@@ -116,10 +116,10 @@ router.post("/online-payment", userController.createRazorPayOrder);
 router.post("/api/payment-success", userController.verifyPayment);
 
 // router for cancelling and returning the product
-router.post(
-  "/order/return-cancel/:userId/:orderId",
-  userController.returnCancelOrder
-);
+// router.post(
+//   "/order/return-cancel/:userId/:orderId",
+//   userController.returnCancelOrder
+// );
 
 // exporting the router
 export default router;
