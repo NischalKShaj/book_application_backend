@@ -7,7 +7,10 @@ import multer from "multer";
 dotenv.config();
 
 // Setting up multer with memory storage
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 50 * 1024 * 1024 },
+});
 
 export const uploadImage = (
   req: Request,
@@ -31,13 +34,9 @@ export const uploadImage = (
     }
 
     try {
-      const uploadedImages: string[] = [];
-
+      const uploadedImages: Buffer[] = [];
       for (const file of req.files as Express.Multer.File[]) {
-        const base64Image = `data:${
-          file.mimetype
-        };base64,${file.buffer.toString("base64")}`;
-        uploadedImages.push(base64Image);
+        uploadedImages.push(file.buffer); // Store as buffer, not base64
       }
 
       req.body.imageUrls = uploadedImages;

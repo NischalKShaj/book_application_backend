@@ -14,16 +14,30 @@ import { authenticateUserJwt } from "../middleware/authToken";
 import { UserUseCase } from "../../core/useCases/userUseCase";
 import { UserRepository } from "../../infrastructure/repository/userRepository";
 import { PasswordService } from "../../infrastructure/services/passwordServices";
+import { OrderRepository } from "../../infrastructure/repository/orderRepository";
+import { OrderUseCase } from "../../core/useCases/orderUseCase";
+import { CartRepository } from "../../infrastructure/repository/cartRepository";
+import { AddressRepository } from "../../infrastructure/repository/addressRepository";
 
 // creating the router instance
 const router = express.Router();
 
 // adding dependency injection
+const orderRepository = new OrderRepository();
 const adminRepository = new AdminRepository();
 const userRepository = new UserRepository();
 const passwordService = new PasswordService();
-const userUseCase = new UserUseCase(userRepository, passwordService);
+const cartRepository = new CartRepository();
 const productRepository = new ProductRepository();
+const addressRepository = new AddressRepository();
+const orderUseCase = new OrderUseCase(
+  orderRepository,
+  userRepository,
+  cartRepository,
+  productRepository,
+  addressRepository
+);
+const userUseCase = new UserUseCase(userRepository, passwordService);
 const generateToken = new GenerateToken();
 const productUseCase = new ProductUseCase(productRepository);
 const adminUseCase = new AdminUseCase(adminRepository);
@@ -32,7 +46,8 @@ const adminController = new AdminController(
   adminAuthService,
   generateToken,
   productUseCase,
-  userUseCase
+  userUseCase,
+  orderUseCase
 );
 
 // creating the route for the admin dashboard
@@ -65,6 +80,9 @@ router.put("/edit-product/:id", uploadImage, adminController.editProduct);
 
 // router for deleting the product
 router.delete("/delete/product/:id", adminController.removeProduct);
+
+// router for getting all the orders
+router.get("/order-details", adminController.getOrders);
 
 // exporting the router for the admin
 export default router;

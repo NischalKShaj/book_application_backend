@@ -129,7 +129,7 @@ export class OrderRepository implements IOrderRepository {
         })
       );
 
-      return userOrder;
+      return userOrder.reverse();
     } catch (error) {
       throw new Error(error as string);
     }
@@ -193,6 +193,25 @@ export class OrderRepository implements IOrderRepository {
       }
       return true;
     } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for getting all the orders in the admin side
+  async getOrders(): Promise<Order[] | null> {
+    try {
+      const orders = await OrderModel.find().lean();
+      if (orders.length === 0) {
+        return null;
+      }
+      return orders
+        .map((order) => ({
+          ...order,
+          _id: order._id.toString(), // Convert ObjectId to string
+        }))
+        .reverse() as unknown as Order[];
+    } catch (error) {
+      console.error("error", error);
       throw new Error(error as string);
     }
   }

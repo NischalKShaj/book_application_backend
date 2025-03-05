@@ -91,7 +91,7 @@ export class UserUseCase {
       if (!allUsers) {
         return { success: false, data: null };
       }
-      return { success: true, data: allUsers };
+      return { success: true, data: allUsers.reverse() };
     } catch (error) {
       console.error("error from usecase", error);
       throw new Error(error as string);

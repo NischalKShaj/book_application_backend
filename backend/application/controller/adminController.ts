@@ -6,6 +6,7 @@ import { AdminAuthService } from "../services/adminAuthService";
 import { GenerateToken } from "../services/generateToken";
 import { ProductUseCase } from "../../core/useCases/productUseCase";
 import { UserUseCase } from "../../core/useCases/userUseCase";
+import { OrderUseCase } from "../../core/useCases/orderUseCase";
 
 // creating the class for the admin controller
 export class AdminController {
@@ -13,7 +14,8 @@ export class AdminController {
     private adminAuthService: AdminAuthService,
     private generateToken: GenerateToken,
     private productUseCase: ProductUseCase,
-    private userUseCase: UserUseCase
+    private userUseCase: UserUseCase,
+    private orderUseCase: OrderUseCase
   ) {
     this.postLogin = this.postLogin.bind(this);
     this.getProducts = this.getProducts.bind(this);
@@ -22,6 +24,7 @@ export class AdminController {
     this.getProduct = this.getProduct.bind(this);
     this.editProduct = this.editProduct.bind(this);
     this.removeProduct = this.removeProduct.bind(this);
+    this.getOrders = this.getOrders.bind(this);
   }
   // controller for the admin login
   async postLogin(req: Request, res: Response): Promise<void> {
@@ -173,6 +176,20 @@ export class AdminController {
       res.status(200).json({ message: "Product removed successfully" });
     } catch (error) {
       console.error("error", error);
+      res.status(500).json({ error: error });
+    }
+  }
+
+  // for getting all the orders
+  async getOrders(req: Request, res: Response): Promise<any> {
+    try {
+      const result = await this.orderUseCase.getOrders();
+      if (!result.success) {
+        return res.status(400).json("no orders found");
+      }
+      res.status(200).json(result.data);
+    } catch (error) {
+      console.error("error from the controller", error);
       res.status(500).json({ error: error });
     }
   }

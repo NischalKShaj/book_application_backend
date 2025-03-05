@@ -14,16 +14,18 @@ export class ProductRepository implements IProductRepository {
       if (products.length <= 0) {
         return null;
       }
-      return products.map(
-        (prod): Product => ({
-          _id: prod._id.toString(),
-          bookName: prod.bookName,
-          bookDescription: prod.bookDescription,
-          amount: prod.amount,
-          stock: prod.stock,
-          images: prod.images,
-        })
-      );
+      return products
+        .map(
+          (prod): Product => ({
+            _id: prod._id.toString(),
+            bookName: prod.bookName,
+            bookDescription: prod.bookDescription,
+            amount: prod.amount,
+            stock: prod.stock,
+            images: prod.images,
+          })
+        )
+        .reverse();
     } catch (error) {
       console.error("error", error);
       throw new Error("no products found");

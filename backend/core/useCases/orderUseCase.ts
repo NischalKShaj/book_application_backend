@@ -197,4 +197,18 @@ export class OrderUseCase {
       throw new Error(error as string);
     }
   }
+
+  // for getting all the orders
+  async getOrders(): Promise<{ success: boolean; data: Order[] | string }> {
+    try {
+      const result = await this.orderRepository.getOrders();
+      if (!result) {
+        return { success: false, data: "no order found" };
+      }
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("error", error);
+      throw new Error(error as string);
+    }
+  }
 }

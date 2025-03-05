@@ -16,12 +16,16 @@ const app = express();
 // enabling the cookie parse
 app.use(cookieParser());
 
-// setting the parsers
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// // setting the parsers
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 
 // enabling the cors policy
 app.use(cors(corsOptions));
+
+// enabling max file size
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 
 // setting the routes
 app.use("/admin", adminRouter);
