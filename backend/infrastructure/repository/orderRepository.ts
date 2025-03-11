@@ -4,6 +4,7 @@
 import { Order } from "../../core/entities/order/order";
 import { IOrderRepository } from "../../core/repository/IOrderRepository";
 import { order as OrderModel } from "../database/schema/orderSchema";
+import mongoose from "mongoose";
 import { Product } from "../../core/entities/product/product";
 import { product as ProductModel } from "../database/schema/productSchema";
 import { User } from "../../core/entities/user/user";
@@ -25,7 +26,9 @@ export class OrderRepository implements IOrderRepository {
 
       const orderData = {
         userId: order.userId,
-        cartId: order.cartId,
+        cartId: order.cartId.map(
+          (id: string) => new mongoose.Types.ObjectId(id)
+        ),
         products: order.products.map((product) => ({
           productId: product.productId.toString(),
           bookName: product.bookName || "",
@@ -60,7 +63,7 @@ export class OrderRepository implements IOrderRepository {
       return new Order(
         saveOrder._id.toString(),
         saveOrder.userId.toString(),
-        saveOrder.cartId.toString(),
+        saveOrder.cartId.map((id: any) => id.toString()),
         formattedProducts,
         saveOrder.totalAmount,
         saveOrder.addressId.toString(),
@@ -109,7 +112,7 @@ export class OrderRepository implements IOrderRepository {
           return new Order(
             order._id.toString(),
             order.userId.toString(),
-            order.cartId.toString(),
+            order.cartId.map((id: any) => id.toString()),
             filteredProducts as Array<{
               productId: string;
               bookName: string;
@@ -162,7 +165,7 @@ export class OrderRepository implements IOrderRepository {
         return new Order(
           order._id.toString(),
           order.userId.toString(),
-          order.cartId.toString(),
+          order.cartId.map((id: any) => id.toString()),
           formattedProducts,
           order.totalAmount,
           order.addressId.toString(),

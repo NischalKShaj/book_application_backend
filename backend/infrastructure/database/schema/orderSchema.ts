@@ -10,11 +10,13 @@ const orderSchema = new Schema({
     ref: "user",
     required: true,
   },
-  cartId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "cart",
-    required: true,
-  },
+  cartId: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "cart",
+      required: true,
+    },
+  ],
   products: [
     {
       productId: {

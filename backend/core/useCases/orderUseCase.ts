@@ -36,6 +36,7 @@ export class OrderUseCase {
       if (!cart) {
         throw new Error("cart empty");
       }
+
       const address = await this.addressRepository.findOneAddress(addressId);
 
       if (!address) {
@@ -50,10 +51,12 @@ export class OrderUseCase {
         quantity: item.quantity,
       }));
 
+      const cartItem = cart.map((item) => item._id);
+
       const order = new Order(
         Date.now().toString(),
         userId.toString(),
-        cart.map((c) => c._id).toString(),
+        cartItem,
         products,
         totalAmount,
         addressId,

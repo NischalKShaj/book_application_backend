@@ -37,7 +37,11 @@ const orderUseCase = new OrderUseCase(
   productRepository,
   addressRepository
 );
-const userUseCase = new UserUseCase(userRepository, passwordService);
+const userUseCase = new UserUseCase(
+  userRepository,
+  passwordService,
+  addressRepository
+);
 const generateToken = new GenerateToken();
 const productUseCase = new ProductUseCase(productRepository);
 const adminUseCase = new AdminUseCase(adminRepository);

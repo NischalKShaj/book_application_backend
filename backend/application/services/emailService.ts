@@ -3,6 +3,7 @@
 // importing the required modules
 import dotenv from "dotenv";
 import createTransport from "nodemailer";
+import { Address } from "../../core/entities/address/address";
 dotenv.config();
 
 // setting up the nodemailer class
@@ -69,6 +70,59 @@ export class EmailSender {
         text = `${username} has requested to cancel the product for order ID ${orderId}. The reason is: ${reason}`;
       }
 
+      // setting up the transporter
+      const transporter = createTransport.createTransport({
+        service: "gmail",
+        auth: {
+          user: process.env.EMAIL,
+          pass: process.env.PASSWORD,
+        },
+      });
+
+      // configuring the mail options
+      const mailOptions = {
+        from: from,
+        to: process.env.EMAIL,
+        subject,
+        text: text,
+      };
+
+      // sending the mail
+      const info = await transporter.sendMail(mailOptions);
+      console.log("information", info);
+      return { success: true };
+    } catch (error) {
+      console.error("error", error);
+      throw new Error(error as string);
+    }
+  }
+
+  // for sending mail for the order confirmation
+  async orderConfirmed(
+    from: string,
+    username: string,
+    productName: string[],
+    address: Address,
+    date: Date,
+    orderId: string
+  ) {
+    try {
+      let text;
+      let subject;
+
+      subject = "New Order Confirmed";
+
+      text = `Hi Admin,
+
+${username} has placed an order for the product ${productName}. The order has been confirmed for the following address:
+
+Recipient: ${address.addresseeName}
+Address: ${address.fullAddress}, ${address.locality}, ${address.city}, ${address.state}, ${address.pincode}
+
+The order was placed on ${date}, and the order ID is ${orderId}.
+
+For any queries, please contact the recipient at ${address.addresseePhone}.
+`;
       // setting up the transporter
       const transporter = createTransport.createTransport({
         service: "gmail",

@@ -4,12 +4,15 @@
 import { IUserRepository } from "../repository/IUserRepository";
 import { User } from "../entities/user/user";
 import { PasswordService } from "../../infrastructure/services/passwordServices";
+import { IAddressRepository } from "../repository/IAddressRepository";
+import { Address } from "../entities/address/address";
 
 // creating the user use case
 export class UserUseCase {
   constructor(
     private userRepository: IUserRepository,
-    private passwordService: PasswordService
+    private passwordService: PasswordService,
+    private addressRepository: IAddressRepository
   ) {}
   // use-case for user signup
   async execute(
@@ -56,6 +59,26 @@ export class UserUseCase {
     } catch (error) {
       console.error("error", error);
       throw new Error("invalid user credentials");
+    }
+  }
+
+  // for getting user with id
+  async findUserAndAddress(
+    id: string,
+    addressId: string
+  ): Promise<{ user: User; address: Address }> {
+    try {
+      const user = await this.userRepository.findByUserId(id);
+      if (!user) {
+        throw new Error("user not found");
+      }
+      const address = await this.addressRepository.findOneAddress(addressId);
+      if (!address) {
+        throw new Error("address not found");
+      }
+      return { user: user, address: address };
+    } catch (error) {
+      throw new Error(error as string);
     }
   }
 

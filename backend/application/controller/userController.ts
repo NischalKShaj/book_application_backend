@@ -12,6 +12,7 @@ import { ProductUseCase } from "../../core/useCases/productUseCase";
 import { CartUseCase } from "../../core/useCases/cartUseCase";
 import { AddressUseCase } from "../../core/useCases/addressUseCase";
 import { OrderUseCase } from "../../core/useCases/orderUseCase";
+import { UserUseCase } from "../../core/useCases/userUseCase";
 import Razorpay from "razorpay";
 // user controller
 
@@ -28,7 +29,8 @@ export class UserController {
     private cartUseCase: CartUseCase,
     private addressUseCase: AddressUseCase,
     private orderUseCase: OrderUseCase,
-    private emailSender: EmailSender
+    private emailSender: EmailSender,
+    private userUseCase: UserUseCase
   ) {
     this.postSignup = this.postSignup.bind(this);
     this.postLogin = this.postLogin.bind(this);
@@ -441,7 +443,6 @@ export class UserController {
     try {
       const { orderData, response } = req.body;
 
-      console.log("req.body", orderData, response);
       const secret = process.env.RAZORPAY_KEY_SECRET;
       if (!secret) {
         throw new Error("secret key not found");
@@ -453,9 +454,7 @@ export class UserController {
 
       const { userId, addressId, items, paymentMethod, totalAmount } =
         orderData;
-      console.log(
-        `userid ${userId}, addressId ${addressId}, items ${items}, payment method ${paymentMethod}, total amount${totalAmount}`
-      );
+
       const date = new Date();
       const result = await this.orderUseCase.createOrder(
         userId,
@@ -469,10 +468,31 @@ export class UserController {
         return res.status(400).json({ message: "failed to place the order" });
       }
 
-      console.log("generate", generatedSignature);
-      console.log("razorpay signature", response.razorpay_signature);
       if (generatedSignature === response.razorpay_signature) {
+        // for sending the response to the user
         res.json({ success: true, message: "Payment verified successfully" });
+
+        // for sending the mail in proper time
+        setImmediate(async () => {
+          try {
+            const userAndAddress = await this.userUseCase.findUserAndAddress(
+              userId,
+              addressId
+            );
+            const products = result.products.map((item) => item.bookName);
+
+            await this.emailSender.orderConfirmed(
+              userAndAddress.user.email,
+              userAndAddress.user.username,
+              products,
+              userAndAddress.address,
+              date,
+              result._id
+            );
+          } catch (error) {
+            console.error("Error sending email:", error);
+          }
+        });
       } else {
         res.status(400).json({ success: false, message: "Invalid signature" });
       }

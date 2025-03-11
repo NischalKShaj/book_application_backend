@@ -43,7 +43,11 @@ const cartUseCase = new CartUseCase(
   productRepository,
   userRepository
 );
-const userUseCase = new UserUseCase(userRepository, passwordService);
+const userUseCase = new UserUseCase(
+  userRepository,
+  passwordService,
+  addressRepository
+);
 const addressUseCase = new AddressUseCase(addressRepository, userRepository);
 const authService = new AuthService(userUseCase);
 const userController = new UserController(
@@ -53,7 +57,8 @@ const userController = new UserController(
   cartUseCase,
   addressUseCase,
   orderUseCase,
-  emailService
+  emailService,
+  userUseCase
 );
 
 // route for home page

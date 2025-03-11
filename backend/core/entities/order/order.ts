@@ -5,7 +5,7 @@ export class Order {
   constructor(
     public _id: string,
     public userId: string,
-    public cartId: string,
+    public cartId: Array<string>,
     public products: Array<{
       productId: string;
       bookName: string;
