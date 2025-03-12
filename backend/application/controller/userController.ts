@@ -51,6 +51,7 @@ export class UserController {
     this.createRazorPayOrder = this.createRazorPayOrder.bind(this);
     this.verifyPayment = this.verifyPayment.bind(this);
     this.returnCancelOrder = this.returnCancelOrder.bind(this);
+    this.changeQuantity = this.changeQuantity.bind(this);
   }
   // controller for signup
   async postSignup(req: Request, res: Response): Promise<void> {
@@ -539,6 +540,34 @@ export class UserController {
     } catch (error) {
       console.error("error", error);
       res.status(500).json({ error: error });
+    }
+  }
+
+  // for updating the quantity for the product in the cart
+  async changeQuantity(req: Request, res: Response): Promise<any> {
+    try {
+      const { userId, productId, quantity, cartId } = req.body;
+
+      console.log(
+        "req.body change quantity",
+        userId,
+        productId,
+        quantity,
+        cartId
+      );
+      const result = await this.cartUseCase.changeQuantity(
+        cartId,
+        userId,
+        quantity,
+        productId
+      );
+      if (!result) {
+        return res
+          .status(400)
+          .json({ message: "Failed to updated the quantity" });
+      }
+    } catch (error) {
+      res.status(500).json(error);
     }
   }
 }
