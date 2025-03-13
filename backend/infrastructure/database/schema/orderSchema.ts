@@ -55,8 +55,8 @@ const orderSchema = new Schema({
   },
   status: {
     type: String,
-    enum: ["pending", "shipped", "out for delivery", "delivered", "canceled"],
-    default: "pending",
+    enum: ["Order Received", "shipped", "delivered", "canceled"],
+    default: "Order Received",
   },
   paymentMethod: {
     type: String,
@@ -70,6 +70,9 @@ const orderSchema = new Schema({
   updatedAt: {
     type: Date,
     default: Date.now(),
+  },
+  trackingId: {
+    type: String,
   },
   isCancel: {
     type: Boolean,

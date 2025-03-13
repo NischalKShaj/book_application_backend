@@ -43,6 +43,7 @@ export class OrderRepository implements IOrderRepository {
         createdAt: resetTimeToMidnight(new Date(order.createdAt)),
         updatedAt: resetTimeToMidnight(new Date(order.updatedAt)),
         isCancel: order.isCancel,
+        trackingId: order.trackingId,
       };
 
       console.log("order data", orderData);
@@ -60,6 +61,8 @@ export class OrderRepository implements IOrderRepository {
 
       console.log("address id", saveOrder.addressId.toString());
 
+      const trackingId = "No id found";
+
       return new Order(
         saveOrder._id.toString(),
         saveOrder.userId.toString(),
@@ -71,7 +74,8 @@ export class OrderRepository implements IOrderRepository {
         saveOrder.paymentMethod,
         resetTimeToMidnight(new Date(saveOrder.createdAt)),
         resetTimeToMidnight(new Date(order.updatedAt)),
-        saveOrder.isCancel
+        saveOrder.isCancel,
+        trackingId
       );
     } catch (error) {
       console.error("error from repository", error);
@@ -120,14 +124,14 @@ export class OrderRepository implements IOrderRepository {
               quantity: number;
               amount: number;
             }>,
-
             order.totalAmount,
             order.addressId.toString(),
             order.status,
             order.paymentMethod,
             order.createdAt,
             order.updatedAt,
-            order.isCancel
+            order.isCancel,
+            order.trackingId ?? ""
           );
         })
       );
@@ -149,7 +153,7 @@ export class OrderRepository implements IOrderRepository {
         return newDate;
       };
 
-      if (order?.status == "pending") {
+      if (order?.status == "Order Received") {
         order.status = "canceled";
 
         await order.save();
@@ -173,7 +177,8 @@ export class OrderRepository implements IOrderRepository {
           order.paymentMethod,
           order.createdAt,
           resetTimeToMidnight(new Date()),
-          order.isCancel
+          order.isCancel,
+          order.trackingId ?? ""
         );
       } else {
         return null;
@@ -215,6 +220,59 @@ export class OrderRepository implements IOrderRepository {
         .reverse() as unknown as Order[];
     } catch (error) {
       console.error("error", error);
+      throw new Error(error as string);
+    }
+  }
+
+  // for updating the order status
+  async updateOrderStatus(
+    id: string,
+    trackingId: string,
+    status: string
+  ): Promise<Order | null> {
+    try {
+      const updatedOrder = await OrderModel.findByIdAndUpdate(
+        id,
+        { $set: { status: status, trackingId: trackingId } },
+        { new: true }
+      );
+      if (!updatedOrder) {
+        throw new Error("Order not updated");
+      }
+
+      // for setting up the time
+      const resetTimeToMidnight = (date: Date): Date => {
+        const newDate = new Date(date);
+        newDate.setHours(0, 0, 0, 0);
+        return newDate;
+      };
+
+      // for formatting the product
+      const formattedProducts = updatedOrder.products.map((product) => ({
+        productId: product.productId.toString(),
+        bookName: product.bookName || "",
+        images: product.images,
+        amount: product.amount,
+        quantity: product.quantity,
+      }));
+
+      // for returning the product with updated status
+      return new Order(
+        updatedOrder._id.toString(),
+        updatedOrder.userId.toString(),
+        updatedOrder.cartId.map((id: any) => id.toString()),
+        formattedProducts,
+        updatedOrder.totalAmount,
+        updatedOrder.addressId.toString(),
+        updatedOrder.status,
+        updatedOrder.paymentMethod,
+        updatedOrder.createdAt,
+        resetTimeToMidnight(new Date()),
+        updatedOrder.isCancel,
+        updatedOrder.trackingId ?? ""
+      );
+    } catch (error) {
+      console.error("error from repo", error);
       throw new Error(error as string);
     }
   }

@@ -53,6 +53,8 @@ export class OrderUseCase {
 
       const cartItem = cart.map((item) => item._id);
 
+      const trackingId = "No id found";
+
       const order = new Order(
         Date.now().toString(),
         userId.toString(),
@@ -60,11 +62,12 @@ export class OrderUseCase {
         products,
         totalAmount,
         addressId,
-        "pending",
+        "Order Received",
         paymentMethod,
         createdAt,
         createdAt,
-        false
+        false,
+        trackingId
       );
 
       const savedOrder = await this.orderRepository.createOrder(order as Order);
@@ -211,6 +214,28 @@ export class OrderUseCase {
       return { success: true, data: result };
     } catch (error) {
       console.error("error", error);
+      throw new Error(error as string);
+    }
+  }
+
+  // for updating the order status
+  async updateOrderStatus(
+    id: string,
+    trackingId: string,
+    status: string
+  ): Promise<{ success: boolean; data: Order | string }> {
+    try {
+      const result = await this.orderRepository.updateOrderStatus(
+        id,
+        trackingId,
+        status
+      );
+      if (!result) {
+        return { success: false, data: "Order Updations Failed" };
+      }
+      return { success: true, data: result };
+    } catch (error) {
+      console.error("error from use case", error);
       throw new Error(error as string);
     }
   }

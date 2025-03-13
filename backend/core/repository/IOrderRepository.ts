@@ -10,4 +10,9 @@ export interface IOrderRepository {
   cancelOrder(orderId: string): Promise<Order | null>;
   enableCancelOrder(orderId: string): Promise<boolean>;
   getOrders(): Promise<Order[] | null>;
+  updateOrderStatus(
+    id: string,
+    trackingId: string,
+    status: string
+  ): Promise<Order | null>;
 }

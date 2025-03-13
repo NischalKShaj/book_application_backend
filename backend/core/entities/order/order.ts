@@ -16,15 +16,15 @@ export class Order {
     public totalAmount: number,
     public addressId: string,
     public status:
-      | "pending"
+      | "Order Received"
       | "shipped"
-      | "out for delivery"
       | "delivered"
       | "canceled"
       | "returned",
     public paymentMethod: string,
     public createdAt: Date,
     public updatedAt: Date,
-    public isCancel: boolean
+    public isCancel: boolean,
+    public trackingId: string
   ) {}
 }
