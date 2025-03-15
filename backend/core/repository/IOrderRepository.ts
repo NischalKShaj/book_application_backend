@@ -15,4 +15,5 @@ export interface IOrderRepository {
     trackingId: string,
     status: string
   ): Promise<Order | null>;
+  showOrderStatus(status: string): Promise<Order[] | null>;
 }

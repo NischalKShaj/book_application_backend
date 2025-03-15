@@ -239,4 +239,19 @@ export class OrderUseCase {
       throw new Error(error as string);
     }
   }
+
+  // for getting the orders based on the status passed
+  async showOrderStatus(
+    status: string
+  ): Promise<{ success: boolean; data: Order[] | string }> {
+    try {
+      const result = await this.orderRepository.showOrderStatus(status);
+      if (!result) {
+        return { success: false, data: "No order found for this status" };
+      }
+      return { success: true, data: result };
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
 }

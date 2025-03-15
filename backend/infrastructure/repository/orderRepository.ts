@@ -276,4 +276,25 @@ export class OrderRepository implements IOrderRepository {
       throw new Error(error as string);
     }
   }
+
+  // getting order for the passed status
+  async showOrderStatus(status: string): Promise<Order[] | null> {
+    try {
+      const orders = await OrderModel.find({ status }).lean();
+      console.log("orders", orders);
+      if (!orders) {
+        return null;
+      }
+
+      // returning the orders
+      return orders
+        .map((order) => ({
+          ...order,
+          _id: order._id.toString(),
+        }))
+        .reverse() as unknown as Order[];
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
 }

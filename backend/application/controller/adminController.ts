@@ -26,6 +26,7 @@ export class AdminController {
     this.removeProduct = this.removeProduct.bind(this);
     this.getOrders = this.getOrders.bind(this);
     this.updateOrderStatus = this.updateOrderStatus.bind(this);
+    this.showOrderStatus = this.showOrderStatus.bind(this);
   }
   // controller for the admin login
   async postLogin(req: Request, res: Response): Promise<void> {
@@ -207,6 +208,22 @@ export class AdminController {
       );
       if (!result.success) {
         return res.status(400).json("Order Updations failed");
+      }
+      res.status(200).json(result.data);
+    } catch (error) {
+      console.error("error from the controller", error);
+      res.status(500).json({ error: error });
+    }
+  }
+
+  // router for showing the orders based on status
+  async showOrderStatus(req: Request, res: Response): Promise<any> {
+    try {
+      const { status } = req.params;
+      console.log("status", status);
+      const result = await this.orderUseCase.showOrderStatus(status);
+      if (!result.success) {
+        return res.status(400).json("No order for this status found");
       }
       res.status(200).json(result.data);
     } catch (error) {

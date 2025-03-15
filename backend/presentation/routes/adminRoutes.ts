@@ -91,5 +91,8 @@ router.get("/order-details", adminController.getOrders);
 // router for updating the order status
 router.patch("/update-order-status/:id", adminController.updateOrderStatus);
 
+// router for showing the orders based on the status
+router.post("/orders/:status", adminController.showOrderStatus);
+
 // exporting the router for the admin
 export default router;
