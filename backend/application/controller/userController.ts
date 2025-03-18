@@ -14,6 +14,8 @@ import { AddressUseCase } from "../../core/useCases/addressUseCase";
 import { OrderUseCase } from "../../core/useCases/orderUseCase";
 import { UserUseCase } from "../../core/useCases/userUseCase";
 import Razorpay from "razorpay";
+import { PhoneNumberVerification } from "../services/twilioService";
+import { otp as OtpModel } from "../../infrastructure/database/schema/otpSchema";
 // user controller
 
 // configuring razorpay
@@ -30,7 +32,8 @@ export class UserController {
     private addressUseCase: AddressUseCase,
     private orderUseCase: OrderUseCase,
     private emailSender: EmailSender,
-    private userUseCase: UserUseCase
+    private userUseCase: UserUseCase,
+    private phoneNumberVerification: PhoneNumberVerification
   ) {
     this.postSignup = this.postSignup.bind(this);
     this.postLogin = this.postLogin.bind(this);
@@ -52,22 +55,38 @@ export class UserController {
     this.verifyPayment = this.verifyPayment.bind(this);
     this.returnCancelOrder = this.returnCancelOrder.bind(this);
     this.changeQuantity = this.changeQuantity.bind(this);
+    this.getOtp = this.getOtp.bind(this);
   }
   // controller for signup
-  async postSignup(req: Request, res: Response): Promise<void> {
+  async postSignup(req: Request, res: Response): Promise<any> {
     try {
-      const { username, email, password, phoneNumber } = req.body;
-      console.log("username", username);
-      if (!username || !email || !password || !phoneNumber) {
+      const formData = req.body.formData;
+      const otp = req.body.otp;
+
+      const formattedNumber = `+91${formData.phoneNumber}`;
+      const result = await OtpModel.findOne({ otp: otp });
+
+      if (result?.phoneNumber !== formattedNumber) {
+        return res.status(400).json({ message: "Invalid  phone number" });
+      } else if (result?.otp !== otp) {
+        return res.status(400).json({ message: "Invalid otp " });
+      }
+
+      if (
+        !formData.username ||
+        !formData.email ||
+        !formData.password ||
+        !formData.phoneNumber
+      ) {
         res.status(400).json({ message: "All fields are required" });
         return;
       }
 
       const user = await this.authService.signup(
-        username,
-        email,
-        password,
-        phoneNumber
+        formData.username,
+        formData.email,
+        formData.password,
+        formData.phoneNumber
       );
       if (user) {
         res.status(201).json({
@@ -83,6 +102,21 @@ export class UserController {
     } catch (error: any) {
       console.error("error", error);
       res.status(400).json({ error: error.message });
+    }
+  }
+
+  // controller for phoneNumber verification for the otp
+  async getOtp(req: Request, res: Response): Promise<any> {
+    try {
+      const { phoneNumber } = req.body;
+      console.log("phoneNumber", phoneNumber);
+      const result = await this.phoneNumberVerification.sendOTP(phoneNumber);
+      if (!result.success) {
+        return res.status(400).json({ message: "Error while sending OTP" });
+      }
+      res.status(200).json(result);
+    } catch (error) {
+      res.status(500).json(error);
     }
   }
 

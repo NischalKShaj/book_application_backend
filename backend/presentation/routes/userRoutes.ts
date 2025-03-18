@@ -17,6 +17,7 @@ import { AddressRepository } from "../../infrastructure/repository/addressReposi
 import { AddressUseCase } from "../../core/useCases/addressUseCase";
 import { OrderRepository } from "../../infrastructure/repository/orderRepository";
 import { OrderUseCase } from "../../core/useCases/orderUseCase";
+import { PhoneNumberVerification } from "../../application/services/twilioService";
 
 // creating the router instance
 const router = express.Router();
@@ -25,6 +26,7 @@ const router = express.Router();
 const userRepository = new UserRepository();
 const passwordService = new PasswordService();
 const emailService = new EmailSender();
+const phoneNumberVerification = new PhoneNumberVerification();
 const generateToken = new GenerateToken();
 const productRepository = new ProductRepository();
 const orderRepository = new OrderRepository();
@@ -58,7 +60,8 @@ const userController = new UserController(
   addressUseCase,
   orderUseCase,
   emailService,
-  userUseCase
+  userUseCase,
+  phoneNumberVerification
 );
 
 // route for home page
@@ -71,6 +74,9 @@ router.post("/login", userController.postLogin);
 
 // route for posting the signup page
 router.post("/signup", userController.postSignup);
+
+// router for getting the otp
+router.post("/otp", userController.getOtp);
 
 // route for seeing all the products
 router.get("/products", userController.getProducts);
