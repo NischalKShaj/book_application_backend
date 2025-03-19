@@ -27,6 +27,7 @@ export class AdminController {
     this.getOrders = this.getOrders.bind(this);
     this.updateOrderStatus = this.updateOrderStatus.bind(this);
     this.showOrderStatus = this.showOrderStatus.bind(this);
+    this.getTopOrders = this.getTopOrders.bind(this);
   }
   // controller for the admin login
   async postLogin(req: Request, res: Response): Promise<void> {
@@ -216,7 +217,7 @@ export class AdminController {
     }
   }
 
-  // router for showing the orders based on status
+  // controller for showing the orders based on status
   async showOrderStatus(req: Request, res: Response): Promise<any> {
     try {
       const { status } = req.params;
@@ -228,6 +229,20 @@ export class AdminController {
       res.status(200).json(result.data);
     } catch (error) {
       console.error("error from the controller", error);
+      res.status(500).json({ error: error });
+    }
+  }
+
+  // controller for showing the top 5 orders in the admin dashboard
+  async getTopOrders(req: Request, res: Response): Promise<any> {
+    try {
+      const result = await this.orderUseCase.getTopOrders();
+      if (!result.success) {
+        return res.status(400).json("No orders found");
+      }
+      console.log("result", result.data);
+      res.status(200).json(result.data);
+    } catch (error) {
       res.status(500).json({ error: error });
     }
   }

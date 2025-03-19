@@ -8,3 +8,11 @@ export interface CustomRequest extends Request {
   files?: Express.Multer.File[];
   imageUrls?: string[];
 }
+
+// type for the top orders graph
+export interface TopOrderedProduct {
+  productId: string;
+  bookName: string;
+  totalQuantity: number;
+  totalSales: number;
+}

@@ -7,6 +7,7 @@ import { IUserRepository } from "../repository/IUserRepository";
 import { ICartRepository } from "../repository/ICartRepository";
 import { IProductRepository } from "../repository/IProductRepository";
 import { IAddressRepository } from "../repository/IAddressRepository";
+import { TopOrderedProduct } from "../../adapter/types/types";
 
 // creating the useCase
 export class OrderUseCase {
@@ -248,6 +249,22 @@ export class OrderUseCase {
       const result = await this.orderRepository.showOrderStatus(status);
       if (!result) {
         return { success: false, data: "No order found for this status" };
+      }
+      return { success: true, data: result };
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for getting the top orders
+  async getTopOrders(): Promise<{
+    success: boolean;
+    data: TopOrderedProduct[] | string;
+  }> {
+    try {
+      const result = await this.orderRepository.getTopOrder();
+      if (!result) {
+        return { success: false, data: "No Orders found" };
       }
       return { success: true, data: result };
     } catch (error) {

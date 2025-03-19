@@ -13,6 +13,7 @@ import { Cart } from "../../core/entities/cart/cart";
 import { cart as CartModel } from "../database/schema/cartSchema";
 import { Address } from "../../core/entities/address/address";
 import { address as AddressModel } from "../database/schema/addressSchema";
+import { TopOrderedProduct } from "../../adapter/types/types";
 
 // creating the repository
 export class OrderRepository implements IOrderRepository {
@@ -294,6 +295,52 @@ export class OrderRepository implements IOrderRepository {
         }))
         .reverse() as unknown as Order[];
     } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for getting the top orders for the admin graph
+  async getTopOrder(): Promise<TopOrderedProduct[] | null> {
+    try {
+      const topProducts = await OrderModel.aggregate([
+        { $unwind: "$products" }, // Flatten the products array
+        {
+          $group: {
+            _id: "$products.productId", // Group by productId
+            totalQuantity: { $sum: "$products.quantity" }, // Sum the quantity ordered
+            totalSales: { $sum: "$products.amount" }, // Sum the total amount
+          },
+        },
+        { $sort: { totalQuantity: -1 } }, // Sort in descending order by quantity
+        { $limit: 5 }, // Get the top 5 products
+        {
+          $lookup: {
+            from: "books", // Name of the product collection
+            localField: "_id",
+            foreignField: "_id",
+            as: "productDetails",
+          },
+        },
+        { $unwind: "$productDetails" }, // Convert productDetails array into an object
+        {
+          $project: {
+            _id: 0,
+            productId: "$_id",
+            bookName: "$productDetails.bookName",
+            totalQuantity: 1,
+            totalSales: 1,
+          },
+        },
+      ]);
+
+      if (!topProducts) {
+        return null;
+      }
+      console.log("top products from repository", topProducts);
+
+      return topProducts;
+    } catch (error) {
+      console.error("Error fetching top ordered products:", error);
       throw new Error(error as string);
     }
   }

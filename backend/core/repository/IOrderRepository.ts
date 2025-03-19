@@ -1,6 +1,7 @@
 // <===================== file to create interface for the order management ====================>
 
 // importing the required modules
+import { TopOrderedProduct } from "../../adapter/types/types";
 import { Order } from "../entities/order/order";
 
 // creating the interface for the order management
@@ -16,4 +17,5 @@ export interface IOrderRepository {
     status: string
   ): Promise<Order | null>;
   showOrderStatus(status: string): Promise<Order[] | null>;
+  getTopOrder(): Promise<TopOrderedProduct[] | null>;
 }

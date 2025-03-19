@@ -94,5 +94,8 @@ router.patch("/update-order-status/:id", adminController.updateOrderStatus);
 // router for showing the orders based on the status
 router.post("/orders/:status", adminController.showOrderStatus);
 
+// router for showing the graph for the top 5 orders
+router.get("/top-product-graph", adminController.getTopOrders);
+
 // exporting the router for the admin
 export default router;
