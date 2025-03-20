@@ -8,6 +8,8 @@ import { ICartRepository } from "../repository/ICartRepository";
 import { IProductRepository } from "../repository/IProductRepository";
 import { IAddressRepository } from "../repository/IAddressRepository";
 import { TopOrderedProduct } from "../../adapter/types/types";
+import { Address } from "../entities/address/address";
+import { Worker } from "worker_threads";
 
 // creating the useCase
 export class OrderUseCase {
@@ -267,6 +269,46 @@ export class OrderUseCase {
         return { success: false, data: "No Orders found" };
       }
       return { success: true, data: result };
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for getting the data for downloading the pdf
+  async downloadInvoice(
+    orderId: string,
+    userId: string
+  ): Promise<{
+    success: boolean;
+    data: string | Address | Order | (Address & Order);
+  }> {
+    try {
+      const user = await this.userRepository.findByUserId(userId);
+      if (!user) {
+        console.log("here user");
+        return { success: false, data: "No user found" };
+      }
+      console.log("here user", user);
+
+      const order = await this.orderRepository.getOrderById(orderId);
+      if (!order) {
+        console.log("here order");
+        return { success: false, data: "No order found" };
+      }
+      console.log("here order", order);
+
+      const address = await this.addressRepository.findOneAddress(
+        order.addressId
+      );
+      if (!address) {
+        console.log("here address");
+        return { success: false, data: "No address found " };
+      }
+      console.log("here address", address);
+
+      const worker = new Worker("");
+
+      return { success: true, data: { ...address, ...order } };
     } catch (error) {
       throw new Error(error as string);
     }

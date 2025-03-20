@@ -129,6 +129,9 @@ router.post("/api/payment-success", userController.verifyPayment);
 // router for updating the quantity of the product in the cart
 router.patch("/update-cart-quantity", userController.changeQuantity);
 
+// router for downloading the invoice
+router.get("/order/invoice/:orderId/:userId", userController.downloadInvoice);
+
 // router for cancelling and returning the product
 // router.post(
 //   "/order/return-cancel/:userId/:orderId",

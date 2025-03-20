@@ -344,4 +344,45 @@ export class OrderRepository implements IOrderRepository {
       throw new Error(error as string);
     }
   }
+
+  // for getting the order Repository router
+  async getOrderById(orderId: string): Promise<Order | null> {
+    try {
+      const order = await OrderModel.findById(orderId);
+      if (!order) {
+        return null;
+      }
+
+      // for setting up the time
+      const resetTimeToMidnight = (date: Date): Date => {
+        const newDate = new Date(date);
+        newDate.setHours(0, 0, 0, 0);
+        return newDate;
+      };
+      const formattedProducts = order.products.map((product) => ({
+        productId: product.productId.toString(),
+        bookName: product.bookName || "",
+        images: product.images,
+        amount: product.amount,
+        quantity: product.quantity,
+      }));
+
+      return new Order(
+        order._id.toString(),
+        order.userId.toString(),
+        order.cartId.map((id: any) => id.toString()),
+        formattedProducts,
+        order.totalAmount,
+        order.addressId.toString(),
+        order.status,
+        order.paymentMethod,
+        order.createdAt,
+        resetTimeToMidnight(new Date()),
+        order.isCancel,
+        order.trackingId ?? ""
+      );
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
 }

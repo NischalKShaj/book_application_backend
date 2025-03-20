@@ -16,6 +16,7 @@ import { UserUseCase } from "../../core/useCases/userUseCase";
 import Razorpay from "razorpay";
 import { PhoneNumberVerification } from "../services/twilioService";
 import { otp as OtpModel } from "../../infrastructure/database/schema/otpSchema";
+
 // user controller
 
 // configuring razorpay
@@ -56,6 +57,7 @@ export class UserController {
     this.returnCancelOrder = this.returnCancelOrder.bind(this);
     this.changeQuantity = this.changeQuantity.bind(this);
     this.getOtp = this.getOtp.bind(this);
+    this.downloadInvoice = this.downloadInvoice.bind(this);
   }
   // controller for signup
   async postSignup(req: Request, res: Response): Promise<any> {
@@ -600,6 +602,23 @@ export class UserController {
           .status(400)
           .json({ message: "Failed to updated the quantity" });
       }
+    } catch (error) {
+      res.status(500).json(error);
+    }
+  }
+
+  // for downloading the pdf for the
+  async downloadInvoice(req: Request, res: Response): Promise<any> {
+    try {
+      const { orderId, userId } = req.params;
+      const result = await this.orderUseCase.downloadInvoice(orderId, userId);
+      if (!result.success) {
+        return res
+          .status(400)
+          .json("No data found for downloading the invoice");
+      }
+
+      res.status(200).json(result.data);
     } catch (error) {
       res.status(500).json(error);
     }
