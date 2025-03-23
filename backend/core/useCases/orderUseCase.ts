@@ -9,7 +9,7 @@ import { IProductRepository } from "../repository/IProductRepository";
 import { IAddressRepository } from "../repository/IAddressRepository";
 import { TopOrderedProduct } from "../../adapter/types/types";
 import { Address } from "../entities/address/address";
-import { Worker } from "worker_threads";
+import { generateInvoicePDF } from "../../application/worker/pdf/invoice";
 
 // creating the useCase
 export class OrderUseCase {
@@ -280,19 +280,19 @@ export class OrderUseCase {
     userId: string
   ): Promise<{
     success: boolean;
-    data: string | Address | Order | (Address & Order);
+    data: string | Buffer;
   }> {
     try {
       const user = await this.userRepository.findByUserId(userId);
       if (!user) {
-        console.log("here user");
+        // console.log("here user");
         return { success: false, data: "No user found" };
       }
       console.log("here user", user);
 
       const order = await this.orderRepository.getOrderById(orderId);
       if (!order) {
-        console.log("here order");
+        // console.log("here order");
         return { success: false, data: "No order found" };
       }
       console.log("here order", order);
@@ -301,14 +301,36 @@ export class OrderUseCase {
         order.addressId
       );
       if (!address) {
-        console.log("here address");
+        // console.log("here address");
         return { success: false, data: "No address found " };
       }
       console.log("here address", address);
 
-      const worker = new Worker("");
+      const invoice = await generateInvoicePDF(address, order, user);
 
-      return { success: true, data: { ...address, ...order } };
+      console.log("invoice", invoice);
+
+      // Sending data to the worker
+      if (!invoice) {
+        return { success: false, data: "Invoice downloading failed" };
+      }
+      return { success: true, data: invoice };
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for getting the max order per-day
+  async checkForMaxOrder(
+    date: Date
+  ): Promise<{ success: boolean; data: string }> {
+    try {
+      const check = await this.orderRepository.checkForMaxOrder(date);
+      console.log("check from usecase", check);
+      if (!check) {
+        return { success: false, data: "Maximum number of order reached" };
+      }
+      return { success: true, data: "No issues for now" };
     } catch (error) {
       throw new Error(error as string);
     }

@@ -58,6 +58,7 @@ export class UserController {
     this.changeQuantity = this.changeQuantity.bind(this);
     this.getOtp = this.getOtp.bind(this);
     this.downloadInvoice = this.downloadInvoice.bind(this);
+    this.getMaxOrders = this.getMaxOrders.bind(this);
   }
   // controller for signup
   async postSignup(req: Request, res: Response): Promise<any> {
@@ -452,6 +453,24 @@ export class UserController {
     }
   }
 
+  // controller for checking if the max order has reached or not
+  async getMaxOrders(req: Request, res: Response): Promise<any> {
+    try {
+      const date = new Date();
+      // for checking whether it is possible to order for the day
+      const check = await this.orderUseCase.checkForMaxOrder(date);
+
+      console.log("check value", check);
+
+      if (!check.success) {
+        return res.status(400).json("Limit Reached");
+      }
+      res.status(200).json({ message: "Limit not reached" });
+    } catch (error) {
+      res.status(500).json({ error: error });
+    }
+  }
+
   // for creating order in the razorpay
   async createRazorPayOrder(req: Request, res: Response): Promise<any> {
     try {
@@ -462,6 +481,18 @@ export class UserController {
           .status(400)
           .json({ success: false, message: "User details missing" });
       }
+
+      const date = new Date();
+
+      // for checking whether it is possible to order for the day
+      const check = await this.orderUseCase.checkForMaxOrder(date);
+
+      console.log("check value", check);
+
+      if (!check.success) {
+        return res.status(400).json("Limit Reached");
+      }
+
       // creating the order
       const orders = await razorpay.orders.create({
         amount: amount * 100,
@@ -471,6 +502,7 @@ export class UserController {
       });
       res.json(orders);
     } catch (error) {
+      console.error("error", error);
       res.status(500).json({ error: error });
     }
   }
@@ -617,8 +649,15 @@ export class UserController {
           .status(400)
           .json("No data found for downloading the invoice");
       }
+      console.log("Generated PDF buffer:", result.data);
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader(
+        "Content-Disposition",
+        'attachment; filename="invoice.pdf"'
+      );
 
-      res.status(200).json(result.data);
+      // Send the buffer as a binary response
+      res.status(200).send(Buffer.from(result.data));
     } catch (error) {
       res.status(500).json(error);
     }

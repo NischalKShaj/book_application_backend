@@ -132,6 +132,9 @@ router.patch("/update-cart-quantity", userController.changeQuantity);
 // router for downloading the invoice
 router.get("/order/invoice/:orderId/:userId", userController.downloadInvoice);
 
+// router for checking the max order per day
+router.get("/check-max-order", userController.getMaxOrders);
+
 // router for cancelling and returning the product
 // router.post(
 //   "/order/return-cancel/:userId/:orderId",

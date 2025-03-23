@@ -19,4 +19,5 @@ export interface IOrderRepository {
   showOrderStatus(status: string): Promise<Order[] | null>;
   getTopOrder(): Promise<TopOrderedProduct[] | null>;
   getOrderById(orderId: string): Promise<Order | null>;
+  checkForMaxOrder(date: Date): Promise<string | null>;
 }

@@ -2,6 +2,8 @@
 
 // importing the required modules
 import { Order } from "../../core/entities/order/order";
+import { mostOrders as MaxOrderModel } from "../database/schema/maxOrderSchema";
+import { MaxOrder } from "../../core/entities/maxOrder/maxOrder";
 import { IOrderRepository } from "../../core/repository/IOrderRepository";
 import { order as OrderModel } from "../database/schema/orderSchema";
 import mongoose from "mongoose";
@@ -20,9 +22,24 @@ export class OrderRepository implements IOrderRepository {
   // for creating new Order
   async createOrder(order: Order): Promise<Order> {
     try {
+      // const resetTimeToMidnight = (date: Date): Date => {
+      //   date.setHours(0, 0, 0, 0);
+      //   return date;
+      // };
+
       const resetTimeToMidnight = (date: Date): Date => {
-        date.setHours(0, 0, 0, 0);
-        return date;
+        const utcDate = new Date(
+          Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
+            0,
+            0,
+            0,
+            0
+          )
+        );
+        return utcDate;
       };
 
       const orderData = {
@@ -50,6 +67,22 @@ export class OrderRepository implements IOrderRepository {
       console.log("order data", orderData);
 
       const saveOrder = await OrderModel.create(orderData);
+
+      const today = resetTimeToMidnight(new Date());
+
+      const existingOrder = await MaxOrderModel.findOne({ date: today });
+
+      if (existingOrder) {
+        // If a record exists, increment the number_of_order by 1
+        await MaxOrderModel.updateOne(
+          { _id: existingOrder._id },
+          { $inc: { number_of_order: 1 } }
+        );
+      } else {
+        // If no record exists, create a new document for today
+        await MaxOrderModel.create({ date: today, number_of_order: 1 });
+      }
+
       console.log("saved ORder", saveOrder);
 
       const formattedProducts = saveOrder.products.map((product) => ({
@@ -149,9 +182,18 @@ export class OrderRepository implements IOrderRepository {
       const order = await OrderModel.findById({ _id: orderId });
 
       const resetTimeToMidnight = (date: Date): Date => {
-        const newDate = new Date(date);
-        newDate.setHours(0, 0, 0, 0);
-        return newDate;
+        const utcDate = new Date(
+          Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
+            0,
+            0,
+            0,
+            0
+          )
+        );
+        return utcDate;
       };
 
       if (order?.status == "Order Received") {
@@ -242,10 +284,25 @@ export class OrderRepository implements IOrderRepository {
       }
 
       // for setting up the time
+      // const resetTimeToMidnight = (date: Date): Date => {
+      //   const newDate = new Date(date);
+      //   newDate.setHours(0, 0, 0, 0);
+      //   return newDate;
+      // };
+
       const resetTimeToMidnight = (date: Date): Date => {
-        const newDate = new Date(date);
-        newDate.setHours(0, 0, 0, 0);
-        return newDate;
+        const utcDate = new Date(
+          Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
+            0,
+            0,
+            0,
+            0
+          )
+        );
+        return utcDate;
       };
 
       // for formatting the product
@@ -354,11 +411,27 @@ export class OrderRepository implements IOrderRepository {
       }
 
       // for setting up the time
+      // const resetTimeToMidnight = (date: Date): Date => {
+      //   const newDate = new Date(date);
+      //   newDate.setHours(0, 0, 0, 0);
+      //   return newDate;
+      // };
+
       const resetTimeToMidnight = (date: Date): Date => {
-        const newDate = new Date(date);
-        newDate.setHours(0, 0, 0, 0);
-        return newDate;
+        const utcDate = new Date(
+          Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
+            0,
+            0,
+            0,
+            0
+          )
+        );
+        return utcDate;
       };
+
       const formattedProducts = order.products.map((product) => ({
         productId: product.productId.toString(),
         bookName: product.bookName || "",
@@ -382,6 +455,48 @@ export class OrderRepository implements IOrderRepository {
         order.trackingId ?? ""
       );
     } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for making sure that the max number of order reached or not
+  async checkForMaxOrder(date: Date): Promise<string | null> {
+    try {
+      const resetTimeToMidnightUTC = (date: Date): Date => {
+        return new Date(
+          Date.UTC(
+            date.getUTCFullYear(),
+            date.getUTCMonth(),
+            date.getUTCDate(),
+            0,
+            0,
+            0,
+            0
+          )
+        );
+      };
+
+      const startOfDay = resetTimeToMidnightUTC(new Date(date));
+      const endOfDay = new Date(startOfDay);
+      endOfDay.setUTCDate(startOfDay.getUTCDate() + 1); // Move to next day to create an exclusive upper bound
+
+      console.log("Start of day:", startOfDay);
+      console.log("End of day:", endOfDay);
+
+      // Query all orders within that date range
+      const check = await MaxOrderModel.findOne({
+        date: { $gte: startOfDay, $lt: endOfDay },
+      });
+
+      console.log("Check from repository:", check);
+
+      if (check && check.number_of_order >= 20) {
+        console.log("Inside condition");
+        return null;
+      }
+      return "Limit not reached";
+    } catch (error) {
+      console.error("Error:", error);
       throw new Error(error as string);
     }
   }

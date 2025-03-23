@@ -20,6 +20,7 @@
     "@types/multer": "^1.4.12",
     "@types/node": "^22.8.1",
     "@types/nodemailer": "^6.4.17",
+    "@types/number-to-words": "^1.2.3",
     "@types/pdfkit": "^0.13.9",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.3"
@@ -37,7 +38,9 @@
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.10.0",
     "nodemon": "^3.1.7",
+    "number-to-words": "^1.2.4",
     "pdfkit": "^0.16.0",
+    "puppeteer": "^24.4.0",
     "razorpay": "^2.9.6",
     "twilio": "^5.5.0",
     "uuid": "^11.0.2"
