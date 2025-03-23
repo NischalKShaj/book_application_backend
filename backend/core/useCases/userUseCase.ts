@@ -108,9 +108,12 @@ export class UserUseCase {
   }
 
   // for getting all the users
-  async getAllUsers(): Promise<{ success: boolean; data: User[] | null }> {
+  async getAllUsers(
+    pageNumber: number,
+    limit: number
+  ): Promise<{ success: boolean; data: User[] | null }> {
     try {
-      const allUsers = await this.userRepository.findUsers();
+      const allUsers = await this.userRepository.findUsers(pageNumber, limit);
       if (!allUsers) {
         return { success: false, data: null };
       }

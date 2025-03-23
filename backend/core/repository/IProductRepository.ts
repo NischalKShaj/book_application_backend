@@ -5,7 +5,7 @@ import { Product } from "../entities/product/product";
 
 // creating the interface for the IUserRepository
 export interface IProductRepository {
-  getAllProduct(): Promise<Product[] | null>;
+  getAllProduct(pageNumber: Number, limit: Number): Promise<Product[] | null>;
   addProduct(product: Product): Promise<Product>;
   checkProduct(bookName: string): Promise<Product | null>;
   getProduct(id: string): Promise<Product | null>;

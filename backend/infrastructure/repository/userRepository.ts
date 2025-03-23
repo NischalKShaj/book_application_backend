@@ -97,9 +97,11 @@ export class UserRepository implements IUserRepository {
   }
 
   // for getting all the users
-  async findUsers(): Promise<User[] | null> {
+  async findUsers(pageNumber: number, limit: number): Promise<User[] | null> {
     try {
-      const allUsers = await UserModel.find();
+      const skip = (pageNumber - 1) * limit;
+
+      const allUsers = await UserModel.find().skip(skip).limit(limit);
       if (allUsers.length === 0) {
         return null;
       }

@@ -150,7 +150,15 @@ export class UserController {
   // controller for getting all the products
   async getProducts(req: Request, res: Response): Promise<void> {
     try {
-      const product = await this.productUseCase.getAllProduct();
+      const { page } = req.query;
+      console.log(typeof page);
+      console.log("page", page);
+      const pageNumber = Number(page);
+      const limit = 12;
+      const product = await this.productUseCase.getAllProduct(
+        pageNumber,
+        limit
+      );
       res.status(202).json({ products: product });
       return;
     } catch (error) {

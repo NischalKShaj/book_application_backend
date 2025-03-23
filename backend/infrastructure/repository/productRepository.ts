@@ -8,9 +8,13 @@ import { product as ProductModel } from "../database/schema/productSchema";
 // creating the repository for the products
 export class ProductRepository implements IProductRepository {
   // for getting all the products from the db
-  async getAllProduct(): Promise<Product[] | null> {
+  async getAllProduct(
+    pageNumber: number,
+    limit: number
+  ): Promise<Product[] | null> {
     try {
-      const products = await ProductModel.find().lean();
+      const skip = (pageNumber - 1) * limit;
+      const products = await ProductModel.find().skip(skip).limit(limit).lean();
       if (products.length <= 0) {
         return null;
       }

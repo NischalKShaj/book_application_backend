@@ -54,7 +54,13 @@ export class AdminController {
   // controller for getting all the products
   async getProducts(req: Request, res: Response): Promise<void> {
     try {
-      const product = await this.productUseCase.getAllProduct();
+      const limit = 12;
+      const { page } = req.query;
+      const pageNumber = Number(page);
+      const product = await this.productUseCase.getAllProduct(
+        pageNumber,
+        limit
+      );
       res.status(202).json({ products: product });
       return;
     } catch (error) {
@@ -100,7 +106,10 @@ export class AdminController {
   async getAllUsers(req: Request, res: Response): Promise<any> {
     try {
       console.log("inside");
-      const allUsers = await this.userUseCase.getAllUsers();
+      const { page } = req.query;
+      const limit = 8;
+      const pageNumber = Number(page);
+      const allUsers = await this.userUseCase.getAllUsers(pageNumber, limit);
       if (!allUsers) {
         return res.status(400).json({ message: "No users found" });
       }

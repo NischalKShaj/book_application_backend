@@ -9,9 +9,15 @@ export class ProductUseCase {
   constructor(private productRepository: IProductRepository) {}
 
   // function for the use case for the product repo
-  async getAllProduct(): Promise<Product[] | null> {
+  async getAllProduct(
+    pageNumber: number,
+    limit: number
+  ): Promise<Product[] | null> {
     try {
-      const product = await this.productRepository.getAllProduct();
+      const product = await this.productRepository.getAllProduct(
+        pageNumber,
+        limit
+      );
       return product;
     } catch (error) {
       console.error("error", error);
