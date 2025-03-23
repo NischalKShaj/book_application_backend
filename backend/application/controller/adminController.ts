@@ -28,6 +28,7 @@ export class AdminController {
     this.updateOrderStatus = this.updateOrderStatus.bind(this);
     this.showOrderStatus = this.showOrderStatus.bind(this);
     this.getTopOrders = this.getTopOrders.bind(this);
+    this.getOrderPerWeek = this.getOrderPerWeek.bind(this);
   }
   // controller for the admin login
   async postLogin(req: Request, res: Response): Promise<void> {
@@ -248,6 +249,20 @@ export class AdminController {
       const result = await this.orderUseCase.getTopOrders();
       if (!result.success) {
         return res.status(400).json("No orders found");
+      }
+      console.log("result", result.data);
+      res.status(200).json(result.data);
+    } catch (error) {
+      res.status(500).json({ error: error });
+    }
+  }
+
+  // controller for showing the order per week
+  async getOrderPerWeek(req: Request, res: Response): Promise<any> {
+    try {
+      const result = await this.orderUseCase.getOrderPerWeek();
+      if (!result.success) {
+        return res.status(400).json("No orders for this week");
       }
       console.log("result", result.data);
       res.status(200).json(result.data);

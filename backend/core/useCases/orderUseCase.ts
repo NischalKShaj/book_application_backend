@@ -7,9 +7,10 @@ import { IUserRepository } from "../repository/IUserRepository";
 import { ICartRepository } from "../repository/ICartRepository";
 import { IProductRepository } from "../repository/IProductRepository";
 import { IAddressRepository } from "../repository/IAddressRepository";
-import { TopOrderedProduct } from "../../adapter/types/types";
+import { OrdersPerWeek, TopOrderedProduct } from "../../adapter/types/types";
 import { Address } from "../entities/address/address";
 import { generateInvoicePDF } from "../../application/worker/pdf/invoice";
+import { MaxOrder } from "../entities/maxOrder/maxOrder";
 
 // creating the useCase
 export class OrderUseCase {
@@ -331,6 +332,22 @@ export class OrderUseCase {
         return { success: false, data: "Maximum number of order reached" };
       }
       return { success: true, data: "No issues for now" };
+    } catch (error) {
+      throw new Error(error as string);
+    }
+  }
+
+  // for getting the orders per week
+  async getOrderPerWeek(): Promise<{
+    success: boolean;
+    data: OrdersPerWeek[] | string;
+  }> {
+    try {
+      const result = await this.orderRepository.getOrderPerWeek();
+      if (!result) {
+        return { success: false, data: "No Orders for this week" };
+      }
+      return { success: true, data: result };
     } catch (error) {
       throw new Error(error as string);
     }

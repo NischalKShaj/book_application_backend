@@ -15,7 +15,7 @@ import { Cart } from "../../core/entities/cart/cart";
 import { cart as CartModel } from "../database/schema/cartSchema";
 import { Address } from "../../core/entities/address/address";
 import { address as AddressModel } from "../database/schema/addressSchema";
-import { TopOrderedProduct } from "../../adapter/types/types";
+import { OrdersPerWeek, TopOrderedProduct } from "../../adapter/types/types";
 
 // creating the repository
 export class OrderRepository implements IOrderRepository {
@@ -497,6 +497,47 @@ export class OrderRepository implements IOrderRepository {
       return "Limit not reached";
     } catch (error) {
       console.error("Error:", error);
+      throw new Error(error as string);
+    }
+  }
+
+  // for getting the orders per week
+  async getOrderPerWeek(): Promise<OrdersPerWeek[] | null> {
+    try {
+      const today = new Date();
+      const endDate = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate(),
+        23,
+        59,
+        59
+      ); // end of the current day
+      const startDate = new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        today.getDate() - 6,
+        0,
+        0,
+        0
+      ); // start of 6 days ago
+      const result = await MaxOrderModel.find({
+        date: {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      }).sort({ date: 1 });
+
+      const formattedData = result.map((sale) => ({
+        date: sale.date,
+        totalSales: sale.number_of_order,
+      }));
+
+      if (!formattedData) {
+        return null;
+      }
+      return formattedData;
+    } catch (error) {
       throw new Error(error as string);
     }
   }

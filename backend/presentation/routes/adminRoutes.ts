@@ -97,5 +97,8 @@ router.post("/orders/:status", adminController.showOrderStatus);
 // router for showing the graph for the top 5 orders
 router.get("/top-product-graph", adminController.getTopOrders);
 
+// router for showing the number of order per week
+router.get("/most-order-per-day", adminController.getOrderPerWeek);
+
 // exporting the router for the admin
 export default router;

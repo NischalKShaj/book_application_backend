@@ -1,7 +1,8 @@
 // <===================== file to create interface for the order management ====================>
 
 // importing the required modules
-import { TopOrderedProduct } from "../../adapter/types/types";
+import { OrdersPerWeek, TopOrderedProduct } from "../../adapter/types/types";
+import { MaxOrder } from "../entities/maxOrder/maxOrder";
 import { Order } from "../entities/order/order";
 
 // creating the interface for the order management
@@ -20,4 +21,5 @@ export interface IOrderRepository {
   getTopOrder(): Promise<TopOrderedProduct[] | null>;
   getOrderById(orderId: string): Promise<Order | null>;
   checkForMaxOrder(date: Date): Promise<string | null>;
+  getOrderPerWeek(): Promise<OrdersPerWeek[] | null>;
 }

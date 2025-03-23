@@ -16,3 +16,9 @@ export interface TopOrderedProduct {
   totalQuantity: number;
   totalSales: number;
 }
+
+// type for getting the weekly ordes
+export interface OrdersPerWeek {
+  date: Date;
+  totalSales: number;
+}
