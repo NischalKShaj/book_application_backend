@@ -56,7 +56,7 @@ export class AdminController {
   async getProducts(req: Request, res: Response): Promise<void> {
     try {
       const limit = 12;
-      const { page } = req.query;
+      const { page } = req.query || 1;
       const pageNumber = Number(page);
       const product = await this.productUseCase.getAllProduct(
         pageNumber,
@@ -107,7 +107,7 @@ export class AdminController {
   async getAllUsers(req: Request, res: Response): Promise<any> {
     try {
       console.log("inside");
-      const { page } = req.query;
+      const { page } = req.query || 1;
       const limit = 8;
       const pageNumber = Number(page);
       const allUsers = await this.userUseCase.getAllUsers(pageNumber, limit);

@@ -150,7 +150,7 @@ export class UserController {
   // controller for getting all the products
   async getProducts(req: Request, res: Response): Promise<void> {
     try {
-      const { page } = req.query;
+      const { page } = req.query || 1;
       console.log(typeof page);
       console.log("page", page);
       const pageNumber = Number(page);
